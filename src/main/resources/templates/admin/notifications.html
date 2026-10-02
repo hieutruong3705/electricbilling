@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Thông báo email')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+		<h1 class="h4 mb-0">Thông báo email</h1>
+		<form th:action="@{/admin/notifications/send-pending}" method="post" class="m-0" id="send-pending-form">
+			<button type="submit" id="btn-send-pending" class="btn btn-primary">Gửi nhắc nợ ngay</button>
+		</form>
+	</div>
+
+	<form method="get" th:action="@{/admin/notifications}" class="row g-2 mb-3" id="filter-form">
+		<div class="col-md-4">
+			<label class="visually-hidden" for="type">Loại</label>
+			<select class="form-select" id="type" name="type">
+				<option value="">Tất cả loại</option>
+				<option value="NEW_BILL" th:selected="${type == 'NEW_BILL'}">Hóa đơn mới</option>
+				<option value="REMINDER" th:selected="${type == 'REMINDER'}">Nhắc thanh toán</option>
+				<option value="OVERDUE" th:selected="${type == 'OVERDUE'}">Quá hạn</option>
+				<option value="PAYMENT_CONFIRMATION" th:selected="${type == 'PAYMENT_CONFIRMATION'}">Xác nhận thanh toán</option>
+			</select>
+		</div>
+		<div class="col-md-3">
+			<label class="visually-hidden" for="status">Trạng thái</label>
+			<select class="form-select" id="status" name="status">
+				<option value="">Tất cả trạng thái</option>
+				<option value="SENT" th:selected="${status == 'SENT'}">Đã gửi</option>
+				<option value="FAILED" th:selected="${status == 'FAILED'}">Thất bại</option>
+				<option value="SKIPPED" th:selected="${status == 'SKIPPED'}">Bỏ qua</option>
+			</select>
+		</div>
+		<div class="col-md-2"><button type="submit" id="btn-search" class="btn btn-primary w-100">Lọc</button></div>
+	</form>
+
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="notification-table">
+			<thead class="table-light">
+			<tr>
+				<th>Thời gian</th>
+				<th>Loại</th>
+				<th>Hộ dùng điện</th>
+				<th>Email nhận</th>
+				<th>Hóa đơn</th>
+				<th>Trạng thái</th>
+				<th>Lỗi</th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="l : ${logs.content}">
+				<td th:text="${@fmt.dateTime(l.createdAt)}">01/10/2026 10:00</td>
+				<td th:text="${l.type.label}">Hóa đơn mới</td>
+				<td th:text="${l.customer.fullName} + ' (' + ${l.customer.customerCode} + ')'">Nguyễn Văn A</td>
+				<td th:text="${l.toEmail}">a@example.com</td>
+				<td th:text="${l.bill != null} ? ${l.bill.billNo} : '—'">HD202610-KH000001</td>
+				<td><span class="badge" data-role="notification-status"
+				          th:classappend="${l.status.name() == 'SENT'} ? 'text-bg-success' : (${l.status.name() == 'FAILED'} ? 'text-bg-danger' : 'text-bg-secondary')"
+				          th:text="${l.status.label}">Đã gửi</span></td>
+				<td class="small text-muted" th:text="${l.error}">lỗi</td>
+				<td>
+					<form th:if="${l.status.name() != 'SENT'}" th:action="@{/admin/notifications/{id}/resend(id=${l.id})}" method="post" class="m-0">
+						<button type="submit" class="btn btn-sm btn-outline-primary" data-role="resend">Gửi lại</button>
+					</form>
+				</td>
+			</tr>
+			<tr th:if="${!logs.hasContent()}">
+				<td colspan="8" class="text-center text-muted" id="no-data">Chưa có thông báo nào</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<p th:replace="~{fragments/layout :: total(${logs})}"></p>
+	<nav th:replace="~{fragments/layout :: pager(${logs})}"></nav>
+</main>
+</body>
+</html>

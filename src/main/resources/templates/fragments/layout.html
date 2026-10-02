@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title th:text="${title} + ' - Tiền điện'">Tiền điện</title>
+	<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+	<link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<nav th:fragment="navbar" class="navbar navbar-dark bg-primary mb-4">
+	<div class="container d-flex flex-wrap gap-2 align-items-center">
+		<a class="navbar-brand me-3" th:href="@{/}" id="nav-brand">⚡ Tiền điện</a>
+		<ul class="nav flex-wrap me-auto" id="main-nav">
+			<th:block th:if="${currentRole == 'ADMIN'}">
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin}" id="nav-dashboard">Tổng quan</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/customers}" id="nav-customers">Hộ dùng điện</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/readings}" id="nav-readings">Chỉ số</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/bills}" id="nav-bills">Hóa đơn</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/payments}" id="nav-payments">Thanh toán</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/notifications}" id="nav-notifications">Thông báo</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/reports}" id="nav-reports">Báo cáo</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/admin/settings}" id="nav-settings">Cấu hình</a></li>
+			</th:block>
+			<th:block th:if="${currentRole == 'CUSTOMER'}">
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/customer/bills}" id="nav-my-bills">Hóa đơn của tôi</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/customer/profile}" id="nav-profile">Hồ sơ</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/customer/password}" id="nav-password">Đổi mật khẩu</a></li>
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/estimate}" id="nav-estimate">Ước tính</a></li>
+			</th:block>
+			<th:block th:if="${currentRole == null}">
+				<li class="nav-item"><a class="nav-link text-white" th:href="@{/estimate}" id="nav-estimate-guest">Ước tính tiền điện</a></li>
+			</th:block>
+		</ul>
+		<div class="d-flex align-items-center gap-2 text-white" th:if="${currentUsername != null}">
+			<span id="nav-user" th:text="${currentUsername}">user</span>
+			<form th:action="@{/logout}" method="post" class="m-0">
+				<button type="submit" id="btn-logout" class="btn btn-sm btn-outline-light">Đăng xuất</button>
+			</form>
+		</div>
+		<div class="d-flex gap-2" th:if="${currentUsername == null}">
+			<a class="btn btn-sm btn-outline-light" th:href="@{/login}" id="nav-login">Đăng nhập</a>
+			<a class="btn btn-sm btn-light" th:href="@{/register}" id="nav-register">Đăng ký</a>
+		</div>
+	</div>
+</nav>
+
+<div th:fragment="flash">
+	<div th:if="${success}" class="alert alert-success" id="flash-success" role="alert" th:text="${success}"></div>
+	<div th:if="${error}" class="alert alert-danger" id="flash-error" role="alert" th:text="${error}"></div>
+</div>
+
+<nav th:fragment="pager(page)" th:if="${page.totalPages > 1}" aria-label="Phân trang">
+	<ul class="pagination justify-content-center flex-wrap">
+		<li class="page-item" th:classappend="${page.first} ? 'disabled'">
+			<a class="page-link" th:href="${@pager.url(page.number - 1)}">«</a>
+		</li>
+		<li class="page-item" th:each="i : ${@pager.window(page)}" th:classappend="${i == page.number} ? 'active'">
+			<a class="page-link" th:href="${@pager.url(i)}" th:text="${i + 1}">1</a>
+		</li>
+		<li class="page-item" th:classappend="${page.last} ? 'disabled'">
+			<a class="page-link" th:href="${@pager.url(page.number + 1)}">»</a>
+		</li>
+	</ul>
+</nav>
+
+<p th:fragment="total(page)" class="text-muted small" id="total-count"
+   th:text="'Tổng: ' + ${page.totalElements} + ' bản ghi'">Tổng: 0 bản ghi</p>
+
+<span th:fragment="billStatus(bill)" class="badge" data-role="bill-status"
+      th:classappend="${bill.paid} ? 'text-bg-success' : (${bill.isOverdue(today)} ? 'text-bg-danger' : 'text-bg-warning')"
+      th:text="${bill.statusLabel(today)}">Chưa thanh toán</span>
+
+</body>
+</html>

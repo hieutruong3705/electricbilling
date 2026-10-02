@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng ký')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div class="card card-medium mx-auto">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Đăng ký tài khoản hộ dùng điện</h1>
+			<form th:action="@{/register}" th:object="${form}" method="post" id="register-form" novalidate>
+				<div th:replace="~{fragments/form :: globalErrors}"></div>
+				<h2 class="h6 text-muted">Tài khoản</h2>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Tên đăng nhập', 'username', 'text')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Mật khẩu', 'password', 'password')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Nhập lại mật khẩu', 'confirmPassword', 'password')}"></div>
+				</div>
+				<h2 class="h6 text-muted mt-2">Thông tin hộ dùng điện</h2>
+				<div th:replace="~{fragments/form :: field('Họ tên', 'fullName', 'text')}"></div>
+				<div th:replace="~{fragments/form :: field('Địa chỉ', 'address', 'text')}"></div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Số điện thoại', 'phone', 'tel')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Email', 'email', 'email')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Số công tơ', 'meterNumber', 'text')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Chỉ số ban đầu (kWh)', 'initialReading', 'number')}"></div>
+				</div>
+				<button type="submit" id="btn-register" class="btn btn-primary">Đăng ký</button>
+				<a th:href="@{/login}" class="btn btn-link" id="link-login">Đã có tài khoản? Đăng nhập</a>
+			</form>
+		</div>
+	</div>
+</main>
+</body>
+</html>

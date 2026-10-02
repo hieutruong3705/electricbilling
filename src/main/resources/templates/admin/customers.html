@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hộ dùng điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Hộ dùng điện</h1>
+
+	<form method="get" th:action="@{/admin/customers}" class="row g-2 mb-3" id="filter-form">
+		<div class="col-md-5">
+			<label class="visually-hidden" for="q">Từ khóa</label>
+			<input class="form-control" type="text" id="q" name="q" th:value="${q}"
+			       placeholder="Mã hộ, họ tên, số công tơ, SĐT, email">
+		</div>
+		<div class="col-md-3">
+			<label class="visually-hidden" for="status">Trạng thái</label>
+			<select class="form-select" id="status" name="status">
+				<option value="">Tất cả trạng thái</option>
+				<option value="ACTIVE" th:selected="${status == 'ACTIVE'}">Đang hoạt động</option>
+				<option value="LOCKED" th:selected="${status == 'LOCKED'}">Đã khóa</option>
+			</select>
+		</div>
+		<div class="col-md-2"><button type="submit" id="btn-search" class="btn btn-primary w-100">Tìm kiếm</button></div>
+	</form>
+
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="customer-table">
+			<thead class="table-light">
+			<tr>
+				<th>Mã hộ</th>
+				<th>Họ tên</th>
+				<th>Số công tơ</th>
+				<th>Điện thoại</th>
+				<th>Email</th>
+				<th>Trạng thái</th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="c : ${customers.content}">
+				<td th:text="${c.customerCode}">KH000001</td>
+				<td th:text="${c.fullName}">Nguyễn Văn A</td>
+				<td th:text="${c.meterNumber}">CT000001</td>
+				<td th:text="${c.phone}">0900000000</td>
+				<td th:text="${c.email}">a@example.com</td>
+				<td><span class="badge" th:classappend="${c.active} ? 'text-bg-success' : 'text-bg-secondary'"
+				          th:text="${c.status.label}">Đang hoạt động</span></td>
+				<td><a class="btn btn-sm btn-outline-primary" th:href="@{/admin/customers/{id}(id=${c.id})}">Chi tiết</a></td>
+			</tr>
+			<tr th:if="${!customers.hasContent()}">
+				<td colspan="7" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<p th:replace="~{fragments/layout :: total(${customers})}"></p>
+	<nav th:replace="~{fragments/layout :: pager(${customers})}"></nav>
+</main>
+</body>
+</html>

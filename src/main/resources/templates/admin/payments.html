@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Thanh toán')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Thanh toán</h1>
+
+	<form method="get" th:action="@{/admin/payments}" class="row g-2 mb-3" id="filter-form">
+		<div class="col-md-5">
+			<label class="visually-hidden" for="q">Từ khóa</label>
+			<input class="form-control" type="text" id="q" name="q" th:value="${q}" placeholder="Mã giao dịch, số hóa đơn, mã hộ, họ tên">
+		</div>
+		<div class="col-md-3">
+			<label class="visually-hidden" for="method">Phương thức</label>
+			<select class="form-select" id="method" name="method">
+				<option value="">Tất cả phương thức</option>
+				<option value="CASH" th:selected="${method == 'CASH'}">Tiền mặt</option>
+				<option value="BANK_TRANSFER" th:selected="${method == 'BANK_TRANSFER'}">Chuyển khoản</option>
+				<option value="E_WALLET" th:selected="${method == 'E_WALLET'}">Ví điện tử</option>
+			</select>
+		</div>
+		<div class="col-md-2"><button type="submit" id="btn-search" class="btn btn-primary w-100">Tìm kiếm</button></div>
+	</form>
+
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="payment-table">
+			<thead class="table-light">
+			<tr>
+				<th>Mã giao dịch</th>
+				<th>Hóa đơn</th>
+				<th>Hộ dùng điện</th>
+				<th class="money">Số tiền</th>
+				<th>Phương thức</th>
+				<th>Thời gian</th>
+				<th>Người thu</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="p : ${payments.content}">
+				<td th:text="${p.referenceCode}">PAY-ABCD1234</td>
+				<td><a th:href="@{/admin/bills/{id}(id=${p.bill.id})}" th:text="${p.bill.billNo}">HD202610-KH000001</a></td>
+				<td th:text="${p.bill.customer.fullName} + ' (' + ${p.bill.customer.customerCode} + ')'">Nguyễn Văn A</td>
+				<td class="money" th:text="${@fmt.money(p.amount)}">636.768 đ</td>
+				<td th:text="${p.method.label}">Tiền mặt</td>
+				<td th:text="${@fmt.dateTime(p.paidAt)}">01/10/2026 10:00</td>
+				<td th:text="${p.receivedBy}">admin</td>
+			</tr>
+			<tr th:if="${!payments.hasContent()}">
+				<td colspan="7" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<p th:replace="~{fragments/layout :: total(${payments})}"></p>
+	<nav th:replace="~{fragments/layout :: pager(${payments})}"></nav>
+</main>
+</body>
+</html>

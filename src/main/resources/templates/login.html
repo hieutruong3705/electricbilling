@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Đăng nhập')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div class="card card-narrow">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Đăng nhập</h1>
+			<div th:replace="~{fragments/layout :: flash}"></div>
+			<div class="alert alert-danger" id="login-error" th:if="${param.error}">Tên đăng nhập hoặc mật khẩu không đúng</div>
+			<div class="alert alert-danger" id="login-locked" th:if="${param.locked}">Tài khoản đã bị khóa</div>
+			<div class="alert alert-info" id="login-logout" th:if="${param.logout}">Bạn đã đăng xuất</div>
+			<form th:action="@{/login}" method="post" id="login-form">
+				<div class="mb-3">
+					<label class="form-label" for="username">Tên đăng nhập</label>
+					<input class="form-control" type="text" id="username" name="username" autofocus required>
+				</div>
+				<div class="mb-3">
+					<label class="form-label" for="password">Mật khẩu</label>
+					<input class="form-control" type="password" id="password" name="password" required>
+				</div>
+				<button type="submit" id="btn-login" class="btn btn-primary w-100">Đăng nhập</button>
+			</form>
+			<p class="mt-3 mb-0 text-center">Chưa có tài khoản? <a th:href="@{/register}" id="link-register">Đăng ký</a></p>
+		</div>
+	</div>
+</main>
+</body>
+</html>

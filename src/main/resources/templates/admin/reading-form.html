@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ghi chỉ số điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Ghi chỉ số điện</h1>
+
+	<!-- Bước 1: chọn hộ -->
+	<div class="card card-medium mb-3" th:if="${ctx == null}">
+		<div class="card-body">
+			<form method="get" th:action="@{/admin/readings/new}" id="search-customer-form" class="row g-2">
+				<div class="col-sm-8">
+					<label class="form-label" for="q">Tìm hộ dùng điện</label>
+					<input class="form-control" type="text" id="q" name="q" th:value="${q}"
+					       placeholder="Mã hộ, họ tên, số công tơ, SĐT" autofocus>
+				</div>
+				<div class="col-sm-4 d-flex align-items-end">
+					<button type="submit" id="btn-search" class="btn btn-primary w-100">Tìm</button>
+				</div>
+			</form>
+
+			<div class="list-group mt-3" id="customer-matches" th:if="${matches != null}">
+				<a class="list-group-item list-group-item-action" th:each="c : ${matches}"
+				   th:href="@{/admin/readings/new(customerId=${c.id})}"
+				   th:text="${c.customerCode} + ' – ' + ${c.fullName} + ' (công tơ ' + ${c.meterNumber} + ')'">KH000001 – Nguyễn Văn A</a>
+				<div class="list-group-item text-muted" id="no-match" th:if="${matches.isEmpty()}">
+					Không tìm thấy hộ đang hoạt động phù hợp
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bước 2: nhập chỉ số -->
+	<div class="card card-medium" th:if="${ctx != null}">
+		<div class="card-body">
+			<dl class="row mb-3">
+				<dt class="col-sm-4">Hộ dùng điện</dt>
+				<dd class="col-sm-8" id="r-customer" th:text="${ctx.customer().fullName} + ' (' + ${ctx.customer().customerCode} + ')'">Nguyễn Văn A</dd>
+				<dt class="col-sm-4">Số công tơ</dt>
+				<dd class="col-sm-8" th:text="${ctx.customer().meterNumber}">CT000001</dd>
+				<dt class="col-sm-4">Chỉ số cũ</dt>
+				<dd class="col-sm-8 fw-bold" id="r-previous" th:text="${ctx.previousReading()}">0</dd>
+			</dl>
+			<form th:action="@{/admin/readings}" th:object="${form}" method="post" id="reading-form" novalidate>
+				<input type="hidden" th:field="*{customerId}">
+				<div th:replace="~{fragments/form :: globalErrors}"></div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Tháng', 'periodMonth', 'number')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Năm', 'periodYear', 'number')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Ngày ghi chỉ số', 'readingDate', 'date')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Chỉ số mới', 'currentReading', 'number')}"></div>
+				</div>
+				<button type="submit" id="btn-save-reading" class="btn btn-primary">Lưu và lập hóa đơn</button>
+				<a th:href="@{/admin/readings/new}" class="btn btn-link" id="btn-change-customer">Chọn hộ khác</a>
+			</form>
+		</div>
+	</div>
+</main>
+</body>
+</html>

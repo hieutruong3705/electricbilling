@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hồ sơ cá nhân')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<div class="card card-medium mx-auto">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Hồ sơ cá nhân</h1>
+			<dl class="row">
+				<dt class="col-sm-4">Mã hộ</dt>
+				<dd class="col-sm-8" id="profile-code" th:text="${customer.customerCode}">KH000001</dd>
+				<dt class="col-sm-4">Số công tơ</dt>
+				<dd class="col-sm-8" id="profile-meter" th:text="${customer.meterNumber}">CT000001</dd>
+				<dt class="col-sm-4">Tên đăng nhập</dt>
+				<dd class="col-sm-8" th:text="${customer.user.username}">user</dd>
+			</dl>
+			<form th:action="@{/customer/profile}" th:object="${form}" method="post" id="profile-form" novalidate>
+				<div th:replace="~{fragments/form :: globalErrors}"></div>
+				<div th:replace="~{fragments/form :: field('Họ tên', 'fullName', 'text')}"></div>
+				<div th:replace="~{fragments/form :: field('Địa chỉ', 'address', 'text')}"></div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Số điện thoại', 'phone', 'tel')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Email', 'email', 'email')}"></div>
+				</div>
+				<button type="submit" id="btn-save-profile" class="btn btn-primary">Lưu thay đổi</button>
+			</form>
+		</div>
+	</div>
+</main>
+</body>
+</html>

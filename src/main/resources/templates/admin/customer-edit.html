@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sửa hộ dùng điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<a th:href="@{/admin/customers/{id}(id=${customer.id})}" class="btn btn-link ps-0" id="link-back">← Chi tiết hộ</a>
+	<div class="card card-medium">
+		<div class="card-body">
+			<h1 class="h4 mb-3" th:text="'Sửa thông tin ' + ${customer.customerCode}">Sửa thông tin</h1>
+			<form th:action="@{/admin/customers/{id}/edit(id=${customer.id})}" th:object="${form}" method="post" id="edit-form" novalidate>
+				<div th:replace="~{fragments/form :: globalErrors}"></div>
+				<div th:replace="~{fragments/form :: field('Họ tên', 'fullName', 'text')}"></div>
+				<div th:replace="~{fragments/form :: field('Địa chỉ', 'address', 'text')}"></div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Số điện thoại', 'phone', 'tel')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Email', 'email', 'email')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Số công tơ', 'meterNumber', 'text')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Chỉ số ban đầu (kWh)', 'initialReading', 'number')}"></div>
+				</div>
+				<p class="text-muted small" th:if="${hasReadings}" id="edit-note">
+					Hộ đã có chỉ số điện nên không thể sửa số công tơ và chỉ số ban đầu.
+				</p>
+				<button type="submit" id="btn-save" class="btn btn-primary">Lưu thay đổi</button>
+			</form>
+		</div>
+	</div>
+</main>
+</body>
+</html>

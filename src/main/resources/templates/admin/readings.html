@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chỉ số điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+		<h1 class="h4 mb-0">Chỉ số điện</h1>
+		<a class="btn btn-primary" th:href="@{/admin/readings/new}" id="btn-new-reading">+ Ghi chỉ số</a>
+	</div>
+
+	<form method="get" th:action="@{/admin/readings}" class="row g-2 mb-3" id="filter-form">
+		<div class="col-md-5">
+			<label class="visually-hidden" for="q">Từ khóa</label>
+			<input class="form-control" type="text" id="q" name="q" th:value="${q}" placeholder="Mã hộ, họ tên, số công tơ">
+		</div>
+		<div class="col-md-3">
+			<label class="visually-hidden" for="period">Kỳ</label>
+			<input class="form-control" type="month" id="period" name="period" th:value="${period}">
+		</div>
+		<div class="col-md-2"><button type="submit" id="btn-search" class="btn btn-primary w-100">Tìm kiếm</button></div>
+	</form>
+
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="reading-table">
+			<thead class="table-light">
+			<tr>
+				<th>Kỳ</th>
+				<th>Mã hộ</th>
+				<th>Họ tên</th>
+				<th>Số công tơ</th>
+				<th class="money">Chỉ số cũ</th>
+				<th class="money">Chỉ số mới</th>
+				<th class="money">kWh</th>
+				<th>Ngày ghi</th>
+				<th>Người ghi</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="r : ${readings.content}">
+				<td th:text="${@fmt.period(r.periodYear, r.periodMonth)}">10/2026</td>
+				<td th:text="${r.customer.customerCode}">KH000001</td>
+				<td th:text="${r.customer.fullName}">Nguyễn Văn A</td>
+				<td th:text="${r.customer.meterNumber}">CT000001</td>
+				<td class="money" th:text="${r.previousReading}">0</td>
+				<td class="money" th:text="${r.currentReading}">250</td>
+				<td class="money" th:text="${r.consumption}">250</td>
+				<td th:text="${@fmt.date(r.readingDate)}">01/10/2026</td>
+				<td th:text="${r.recordedBy}">admin</td>
+			</tr>
+			<tr th:if="${!readings.hasContent()}">
+				<td colspan="9" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<p th:replace="~{fragments/layout :: total(${readings})}"></p>
+	<nav th:replace="~{fragments/layout :: pager(${readings})}"></nav>
+</main>
+</body>
+</html>

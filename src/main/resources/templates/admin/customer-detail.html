@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chi tiết hộ dùng điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<a th:href="@{/admin/customers}" class="btn btn-link ps-0" id="link-back">← Danh sách hộ</a>
+	<h1 class="h4 mb-3">Chi tiết hộ dùng điện</h1>
+
+	<div class="card mb-3">
+		<div class="card-body">
+			<dl class="row mb-3">
+				<dt class="col-sm-3">Mã hộ</dt>
+				<dd class="col-sm-9" id="c-code" th:text="${customer.customerCode}">KH000001</dd>
+				<dt class="col-sm-3">Họ tên</dt>
+				<dd class="col-sm-9" id="c-name" th:text="${customer.fullName}">Nguyễn Văn A</dd>
+				<dt class="col-sm-3">Địa chỉ</dt>
+				<dd class="col-sm-9" th:text="${customer.address}">Hà Nội</dd>
+				<dt class="col-sm-3">Điện thoại</dt>
+				<dd class="col-sm-9" th:text="${customer.phone}">0900000000</dd>
+				<dt class="col-sm-3">Email</dt>
+				<dd class="col-sm-9" th:text="${customer.email}">a@example.com</dd>
+				<dt class="col-sm-3">Số công tơ</dt>
+				<dd class="col-sm-9" th:text="${customer.meterNumber}">CT000001</dd>
+				<dt class="col-sm-3">Chỉ số ban đầu</dt>
+				<dd class="col-sm-9" th:text="${customer.initialReading} + ' kWh'">0 kWh</dd>
+				<dt class="col-sm-3">Tên đăng nhập</dt>
+				<dd class="col-sm-9" th:text="${customer.user.username}">user</dd>
+				<dt class="col-sm-3">Ngày đăng ký</dt>
+				<dd class="col-sm-9" th:text="${@fmt.dateTime(customer.createdAt)}">01/10/2026 10:00</dd>
+				<dt class="col-sm-3">Trạng thái</dt>
+				<dd class="col-sm-9"><span class="badge" id="c-status" th:classappend="${customer.active} ? 'text-bg-success' : 'text-bg-secondary'"
+				                          th:text="${customer.status.label}">Đang hoạt động</span></dd>
+			</dl>
+			<div class="d-flex flex-wrap gap-2">
+				<a class="btn btn-primary" th:if="${customer.active}" id="btn-new-reading"
+				   th:href="@{/admin/readings/new(customerId=${customer.id})}">Ghi chỉ số</a>
+				<a class="btn btn-outline-primary" id="btn-edit" th:href="@{/admin/customers/{id}/edit(id=${customer.id})}">Sửa thông tin</a>
+				<form th:if="${customer.active}" th:action="@{/admin/customers/{id}/lock(id=${customer.id})}" method="post" class="m-0">
+					<button type="submit" id="btn-lock" class="btn btn-outline-danger">Khóa hộ</button>
+				</form>
+				<form th:unless="${customer.active}" th:action="@{/admin/customers/{id}/unlock(id=${customer.id})}" method="post" class="m-0">
+					<button type="submit" id="btn-unlock" class="btn btn-outline-success">Mở khóa</button>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<h2 class="h5">Hóa đơn</h2>
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="bill-table">
+			<thead class="table-light">
+			<tr>
+				<th>Kỳ</th>
+				<th>Số hóa đơn</th>
+				<th class="money">kWh</th>
+				<th class="money">Tổng tiền</th>
+				<th>Hạn</th>
+				<th>Trạng thái</th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="b : ${bills.content}">
+				<td th:text="${@fmt.period(b.periodYear, b.periodMonth)}">10/2026</td>
+				<td th:text="${b.billNo}">HD202610-KH000001</td>
+				<td class="money" th:text="${b.consumptionKwh}">250</td>
+				<td class="money" th:text="${@fmt.money(b.totalAmount)}">636.768 đ</td>
+				<td th:text="${@fmt.date(b.dueDate)}">16/10/2026</td>
+				<td><span th:replace="~{fragments/layout :: billStatus(${b})}"></span></td>
+				<td><a class="btn btn-sm btn-outline-primary" th:href="@{/admin/bills/{id}(id=${b.id})}">Chi tiết</a></td>
+			</tr>
+			<tr th:if="${!bills.hasContent()}">
+				<td colspan="7" class="text-center text-muted" id="no-data">Chưa có hóa đơn</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<nav th:replace="~{fragments/layout :: pager(${bills})}"></nav>
+</main>
+</body>
+</html>

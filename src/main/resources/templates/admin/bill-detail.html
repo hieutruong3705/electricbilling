@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chi tiết hóa đơn')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<a th:href="@{/admin/bills}" class="btn btn-link ps-0" id="link-back">← Danh sách hóa đơn</a>
+	<h1 class="h4 mb-3">Chi tiết hóa đơn</h1>
+
+	<div th:replace="~{fragments/bill :: detail(${bill}, ${payment})}"></div>
+
+	<div class="d-flex flex-wrap gap-3">
+		<div class="card border-success flex-fill" th:if="${!bill.paid}" id="counter-pay-card">
+			<div class="card-header text-bg-success">Thu tiền tại quầy</div>
+			<div class="card-body">
+				<form th:action="@{/admin/bills/{id}/pay(id=${bill.id})}" method="post" id="counter-pay-form">
+					<button type="submit" id="btn-counter-pay" class="btn btn-success"
+					        th:text="'Ghi nhận thu tiền mặt ' + ${@fmt.money(bill.totalAmount)}">Ghi nhận thu tiền mặt</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="card flex-fill" th:if="${canEditReading}" id="edit-reading-card">
+			<div class="card-header">Sửa chỉ số kỳ này</div>
+			<div class="card-body">
+				<form th:action="@{/admin/bills/{id}/reading(id=${bill.id})}" method="post" id="edit-reading-form" class="row g-2">
+					<div class="col-8">
+						<label class="visually-hidden" for="currentReading">Chỉ số mới</label>
+						<input class="form-control" type="number" min="0" id="currentReading" name="currentReading"
+						       th:value="${bill.reading.currentReading}">
+					</div>
+					<div class="col-4">
+						<button type="submit" id="btn-edit-reading" class="btn btn-outline-primary w-100">Lưu</button>
+					</div>
+					<div class="col-12 text-muted small">Hóa đơn sẽ được tính lại theo biểu giá hiện hành.</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</main>
+</body>
+</html>

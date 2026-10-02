@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tổng quan')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Tổng quan</h1>
+	<div class="row g-3 mb-4">
+		<div class="col-sm-6 col-lg-4">
+			<div class="card h-100"><div class="card-body">
+				<div class="text-muted">Hộ đang hoạt động</div>
+				<div class="stat-value" id="stat-customers" th:text="${@fmt.number(stats.activeCustomers())}">0</div>
+			</div></div>
+		</div>
+		<div class="col-sm-6 col-lg-4">
+			<div class="card h-100"><div class="card-body">
+				<div class="text-muted">Hóa đơn chưa thanh toán (còn hạn)</div>
+				<div class="stat-value" id="stat-unpaid" th:text="${@fmt.number(stats.unpaidBills())}">0</div>
+			</div></div>
+		</div>
+		<div class="col-sm-6 col-lg-4">
+			<div class="card h-100"><div class="card-body">
+				<div class="text-muted">Hóa đơn quá hạn</div>
+				<div class="stat-value text-danger" id="stat-overdue" th:text="${@fmt.number(stats.overdueBills())}">0</div>
+			</div></div>
+		</div>
+		<div class="col-sm-6 col-lg-4">
+			<div class="card h-100"><div class="card-body">
+				<div class="text-muted">Tổng tiền còn nợ</div>
+				<div class="stat-value" id="stat-outstanding" th:text="${@fmt.money(stats.outstanding())}">0 đ</div>
+			</div></div>
+		</div>
+		<div class="col-sm-6 col-lg-4">
+			<div class="card h-100"><div class="card-body">
+				<div class="text-muted">Đã thu trong tháng này</div>
+				<div class="stat-value text-success" id="stat-collected" th:text="${@fmt.money(stats.collectedThisMonth())}">0 đ</div>
+			</div></div>
+		</div>
+	</div>
+	<div class="d-flex flex-wrap gap-2">
+		<a class="btn btn-primary" th:href="@{/admin/readings/new}" id="btn-new-reading">Ghi chỉ số điện</a>
+		<a class="btn btn-outline-primary" th:href="@{/admin/bills(state='OVERDUE')}" id="btn-overdue-bills">Xem hóa đơn quá hạn</a>
+		<a class="btn btn-outline-primary" th:href="@{/admin/reports}" id="btn-reports">Báo cáo</a>
+	</div>
+</main>
+</body>
+</html>

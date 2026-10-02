@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Chi tiết hóa đơn dùng chung cho ADMIN và CUSTOMER -->
+<div th:fragment="detail(bill, payment)">
+	<div class="card mb-3">
+		<div class="card-body">
+			<dl class="row mb-0">
+				<dt class="col-sm-4">Số hóa đơn</dt>
+				<dd class="col-sm-8" id="bill-no" th:text="${bill.billNo}">HD202610-KH000001</dd>
+				<dt class="col-sm-4">Kỳ</dt>
+				<dd class="col-sm-8" id="bill-period" th:text="${@fmt.period(bill.periodYear, bill.periodMonth)}">10/2026</dd>
+				<dt class="col-sm-4">Hộ dùng điện</dt>
+				<dd class="col-sm-8" id="bill-customer"
+				    th:text="${bill.customer.fullName} + ' (' + ${bill.customer.customerCode} + ')'">Nguyễn Văn A</dd>
+				<dt class="col-sm-4">Địa chỉ</dt>
+				<dd class="col-sm-8" th:text="${bill.customer.address}">Hà Nội</dd>
+				<dt class="col-sm-4">Số công tơ</dt>
+				<dd class="col-sm-8" th:text="${bill.customer.meterNumber}">CT000001</dd>
+				<dt class="col-sm-4">Chỉ số</dt>
+				<dd class="col-sm-8" id="bill-readings"
+				    th:text="${bill.reading.previousReading} + ' → ' + ${bill.reading.currentReading}">0 → 250</dd>
+				<dt class="col-sm-4">Điện năng tiêu thụ</dt>
+				<dd class="col-sm-8" id="bill-kwh" th:text="${bill.consumptionKwh} + ' kWh'">250 kWh</dd>
+				<dt class="col-sm-4">Ngày lập</dt>
+				<dd class="col-sm-8" th:text="${@fmt.date(bill.issueDate)}">01/10/2026</dd>
+				<dt class="col-sm-4">Hạn thanh toán</dt>
+				<dd class="col-sm-8" id="bill-due" th:text="${@fmt.date(bill.dueDate)}">16/10/2026</dd>
+				<dt class="col-sm-4">Trạng thái</dt>
+				<dd class="col-sm-8" id="bill-status"><span th:replace="~{fragments/layout :: billStatus(${bill})}"></span></dd>
+			</dl>
+		</div>
+	</div>
+
+	<div class="table-responsive">
+		<table class="table table-bordered bg-white" id="bill-lines">
+			<thead class="table-light">
+			<tr>
+				<th>Bậc</th>
+				<th>Khoảng (kWh)</th>
+				<th class="money">kWh</th>
+				<th class="money">Đơn giá</th>
+				<th class="money">Thành tiền</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="l : ${bill.lines}">
+				<td th:text="${l.tierNo}">1</td>
+				<td th:text="${(l.fromKwh == 0 ? 0 : l.fromKwh + 1) + (l.toKwh != null ? ' – ' + l.toKwh : ' trở lên')}">0 – 50</td>
+				<td class="money" th:text="${l.kwh}">50</td>
+				<td class="money" th:text="${@fmt.number(l.unitPrice)}">1.984</td>
+				<td class="money" th:text="${@fmt.money(l.amount)}">99.200 đ</td>
+			</tr>
+			<tr th:if="${bill.lines.isEmpty()}">
+				<td colspan="5" class="text-center text-muted">Không phát sinh điện năng tiêu thụ</td>
+			</tr>
+			</tbody>
+			<tfoot>
+			<tr>
+				<th colspan="4" class="text-end">Tiền điện</th>
+				<td class="money" id="bill-subtotal" th:text="${@fmt.money(bill.subtotal)}">589.600 đ</td>
+			</tr>
+			<tr>
+				<th colspan="4" class="text-end" th:text="'VAT (' + ${@fmt.number(bill.vatRate)} + '%)'">VAT (8%)</th>
+				<td class="money" id="bill-vat" th:text="${@fmt.money(bill.vatAmount)}">47.168 đ</td>
+			</tr>
+			<tr class="table-primary">
+				<th colspan="4" class="text-end">Tổng cộng</th>
+				<td class="money fw-bold" id="bill-total" th:text="${@fmt.money(bill.totalAmount)}">636.768 đ</td>
+			</tr>
+			</tfoot>
+		</table>
+	</div>
+
+	<div class="card mb-3 border-success" th:if="${payment != null}" id="payment-info">
+		<div class="card-header text-bg-success">Thông tin thanh toán</div>
+		<div class="card-body">
+			<dl class="row mb-0">
+				<dt class="col-sm-4">Mã giao dịch</dt>
+				<dd class="col-sm-8" id="payment-ref" th:text="${payment.referenceCode}">PAY-ABCD1234</dd>
+				<dt class="col-sm-4">Phương thức</dt>
+				<dd class="col-sm-8" th:text="${payment.method.label}">Tiền mặt</dd>
+				<dt class="col-sm-4">Số tiền</dt>
+				<dd class="col-sm-8" th:text="${@fmt.money(payment.amount)}">636.768 đ</dd>
+				<dt class="col-sm-4">Thời gian</dt>
+				<dd class="col-sm-8" th:text="${@fmt.dateTime(payment.paidAt)}">01/10/2026 10:00</dd>
+				<dt class="col-sm-4">Người thu</dt>
+				<dd class="col-sm-8" th:text="${payment.receivedBy}">admin</dd>
+			</dl>
+		</div>
+	</div>
+</div>
+
+</body>
+</html>

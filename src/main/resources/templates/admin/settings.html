@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Cấu hình')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Cấu hình hệ thống</h1>
+
+	<form th:action="@{/admin/settings}" th:object="${form}" method="post" id="settings-form" novalidate>
+		<div th:replace="~{fragments/form :: globalErrors}"></div>
+
+		<div class="card mb-3">
+			<div class="card-header">Biểu giá điện bậc thang (đ/kWh)</div>
+			<div class="card-body">
+				<p class="text-muted small">
+					Bậc đầu bắt đầu từ 0; "Từ kWh" của mỗi bậc bằng "Đến kWh" của bậc trước; bậc cuối để trống "Đến kWh"
+					(không giới hạn). Xóa một bậc bằng cách xóa trống cả dòng; dòng trống ở cuối dùng để thêm bậc mới.
+				</p>
+				<div class="table-responsive">
+					<table class="table table-sm align-middle" id="tier-table">
+						<thead>
+						<tr><th>Bậc</th><th>Từ kWh</th><th>Đến kWh</th><th>Đơn giá (đ/kWh)</th></tr>
+						</thead>
+						<tbody>
+						<tr th:each="t, st : *{tiers}">
+							<td th:text="${st.index + 1}">1</td>
+							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].fromKwh}"></td>
+							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].toKwh}"></td>
+							<td><input class="form-control form-control-sm" type="number" min="0" step="any" th:field="*{tiers[__${st.index}__].unitPrice}"></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<div class="card mb-3">
+			<div class="card-header">Tham số vận hành</div>
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Thuế VAT (%)', 'vatRate', 'number')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Hạn thanh toán (ngày kể từ ngày lập)', 'dueDays', 'number')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Nhắc trước hạn (ngày)', 'reminderDays', 'number')}"></div>
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Tên đơn vị điện lực', 'companyName', 'text')}"></div>
+				</div>
+				<div class="row">
+					<div class="col-md-6" th:insert="~{fragments/form :: field('Địa chỉ gửi email (From)', 'mailFrom', 'email')}"></div>
+					<div class="col-md-6 d-flex align-items-center">
+						<div class="form-check">
+							<input class="form-check-input" type="checkbox" th:field="*{mailEnabled}">
+							<label class="form-check-label" for="mailEnabled">Bật gửi email thông báo</label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<button type="submit" id="btn-save-settings" class="btn btn-primary">Lưu cấu hình</button>
+	</form>
+</main>
+</body>
+</html>

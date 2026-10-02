@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hóa đơn của tôi')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4">Hóa đơn của tôi</h1>
+	<p class="text-muted" id="customer-info"
+	   th:text="${customer.fullName} + ' · Mã hộ ' + ${customer.customerCode} + ' · Công tơ ' + ${customer.meterNumber}">Thông tin hộ</p>
+
+	<form method="get" th:action="@{/customer/bills}" class="row g-2 mb-3" id="filter-form">
+		<div class="col-sm-4">
+			<label class="visually-hidden" for="state">Trạng thái</label>
+			<select class="form-select" id="state" name="state">
+				<option value="">Tất cả trạng thái</option>
+				<option value="UNPAID" th:selected="${state == 'UNPAID'}">Chưa thanh toán</option>
+				<option value="OVERDUE" th:selected="${state == 'OVERDUE'}">Quá hạn</option>
+				<option value="PAID" th:selected="${state == 'PAID'}">Đã thanh toán</option>
+			</select>
+		</div>
+		<div class="col-sm-2"><button type="submit" id="btn-filter" class="btn btn-primary w-100">Lọc</button></div>
+	</form>
+
+	<div class="table-responsive">
+		<table class="table table-striped bg-white" id="bill-table">
+			<thead class="table-light">
+			<tr>
+				<th>Kỳ</th>
+				<th>Số hóa đơn</th>
+				<th class="money">kWh</th>
+				<th class="money">Tổng tiền</th>
+				<th>Hạn thanh toán</th>
+				<th>Trạng thái</th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr th:each="b : ${bills.content}">
+				<td th:text="${@fmt.period(b.periodYear, b.periodMonth)}">10/2026</td>
+				<td th:text="${b.billNo}">HD202610-KH000001</td>
+				<td class="money" th:text="${b.consumptionKwh}">250</td>
+				<td class="money" th:text="${@fmt.money(b.totalAmount)}">636.768 đ</td>
+				<td th:text="${@fmt.date(b.dueDate)}">16/10/2026</td>
+				<td><span th:replace="~{fragments/layout :: billStatus(${b})}"></span></td>
+				<td><a class="btn btn-sm btn-outline-primary" th:href="@{/customer/bills/{id}(id=${b.id})}">Chi tiết</a></td>
+			</tr>
+			<tr th:if="${!bills.hasContent()}">
+				<td colspan="7" class="text-center text-muted" id="no-data">Không có hóa đơn nào</td>
+			</tr>
+			</tbody>
+		</table>
+	</div>
+	<p th:replace="~{fragments/layout :: total(${bills})}"></p>
+	<nav th:replace="~{fragments/layout :: pager(${bills})}"></nav>
+</main>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Chi tiết hóa đơn')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<a th:href="@{/customer/bills}" class="btn btn-link ps-0" id="link-back">← Danh sách hóa đơn</a>
+	<h1 class="h4 mb-3">Chi tiết hóa đơn</h1>
+
+	<div th:replace="~{fragments/bill :: detail(${bill}, ${payment})}"></div>
+
+	<div class="card border-primary" th:if="${!bill.paid}" id="pay-card">
+		<div class="card-header text-bg-primary">Thanh toán trực tuyến</div>
+		<div class="card-body">
+			<form th:action="@{/customer/bills/{id}/pay(id=${bill.id})}" method="post" id="pay-form" class="row g-2 align-items-end">
+				<div class="col-sm-6">
+					<label class="form-label" for="method">Phương thức thanh toán</label>
+					<select class="form-select" id="method" name="method">
+						<option value="BANK_TRANSFER">Chuyển khoản</option>
+						<option value="E_WALLET">Ví điện tử</option>
+					</select>
+				</div>
+				<div class="col-sm-6">
+					<button type="submit" id="btn-pay" class="btn btn-success w-100"
+					        th:text="'Thanh toán ' + ${@fmt.money(bill.totalAmount)}">Thanh toán</button>
+				</div>
+			</form>
+			<p class="text-muted small mt-2 mb-0">Cổng thanh toán được mô phỏng: giao dịch luôn thành công.</p>
+		</div>
+	</div>
+</main>
+</body>
+</html>

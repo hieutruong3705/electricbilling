@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ước tính tiền điện')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div class="card card-medium mx-auto">
+		<div class="card-body">
+			<h1 class="h4 mb-3">Ước tính tiền điện</h1>
+			<form method="get" th:action="@{/estimate}" id="estimate-form" class="row g-2 mb-3">
+				<div class="col-sm-8">
+					<label class="visually-hidden" for="kwh">Số kWh</label>
+					<input class="form-control" type="text" inputmode="numeric" id="kwh" name="kwh"
+					       placeholder="Nhập số kWh dự kiến (ví dụ 250)" th:value="${kwh}"
+					       th:classappend="${estimateError != null} ? 'is-invalid'">
+					<div class="invalid-feedback" id="kwh-error" th:if="${estimateError != null}" th:text="${estimateError}">Lỗi</div>
+				</div>
+				<div class="col-sm-4">
+					<button type="submit" id="btn-estimate" class="btn btn-primary w-100">Tính tiền</button>
+				</div>
+			</form>
+
+			<div th:if="${result != null}" id="estimate-result">
+				<div class="table-responsive">
+					<table class="table table-bordered mb-0">
+						<thead class="table-light">
+						<tr>
+							<th>Bậc</th>
+							<th>Khoảng (kWh)</th>
+							<th class="money">kWh</th>
+							<th class="money">Đơn giá</th>
+							<th class="money">Thành tiền</th>
+						</tr>
+						</thead>
+						<tbody>
+						<tr th:each="l : ${result.lines()}">
+							<td th:text="${l.tierNo()}">1</td>
+							<td th:text="${(l.fromKwh() == 0 ? 0 : l.fromKwh() + 1) + (l.toKwh() != null ? ' – ' + l.toKwh() : ' trở lên')}">0 – 50</td>
+							<td class="money" th:text="${l.kwh()}">50</td>
+							<td class="money" th:text="${@fmt.number(l.unitPrice())}">1.984</td>
+							<td class="money" th:text="${@fmt.money(l.amount())}">99.200 đ</td>
+						</tr>
+						</tbody>
+						<tfoot>
+						<tr>
+							<th colspan="4" class="text-end">Tiền điện</th>
+							<td class="money" id="estimate-subtotal" th:text="${@fmt.money(result.subtotal())}">589.600 đ</td>
+						</tr>
+						<tr>
+							<th colspan="4" class="text-end" th:text="'VAT (' + ${@fmt.number(result.vatRate())} + '%)'">VAT</th>
+							<td class="money" id="estimate-vat" th:text="${@fmt.money(result.vatAmount())}">47.168 đ</td>
+						</tr>
+						<tr class="table-primary">
+							<th colspan="4" class="text-end">Tổng cộng</th>
+							<td class="money fw-bold" id="estimate-total" th:text="${@fmt.money(result.total())}">636.768 đ</td>
+						</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</main>
+</body>
+</html>

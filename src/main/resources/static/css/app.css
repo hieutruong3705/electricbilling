@@ -1,0 +1,9 @@
+body { background: #f5f7fa; }
+.navbar-brand { font-weight: 600; }
+#main-nav .nav-link { padding: .25rem .6rem; border-radius: .25rem; }
+#main-nav .nav-link:hover { background: rgba(255, 255, 255, .15); }
+.table th { white-space: nowrap; }
+.money { text-align: right; white-space: nowrap; }
+.stat-value { font-size: 1.6rem; font-weight: 600; }
+.card-narrow { max-width: 520px; margin-left: auto; margin-right: auto; }
+.card-medium { max-width: 760px; }

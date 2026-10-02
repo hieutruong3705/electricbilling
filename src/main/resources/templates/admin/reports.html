@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Báo cáo')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<main class="container pb-5">
+	<div th:replace="~{fragments/layout :: flash}"></div>
+	<h1 class="h4 mb-3">Báo cáo</h1>
+
+	<ul class="nav nav-tabs mb-3" id="report-tabs">
+		<li class="nav-item"><a class="nav-link" id="tab-revenue" th:classappend="${type == 'revenue'} ? 'active'"
+		                        th:href="@{/admin/reports(type='revenue')}">Doanh thu theo kỳ</a></li>
+		<li class="nav-item"><a class="nav-link" id="tab-debts" th:classappend="${type == 'debts'} ? 'active'"
+		                        th:href="@{/admin/reports(type='debts')}">Danh sách nợ</a></li>
+		<li class="nav-item"><a class="nav-link" id="tab-consumption" th:classappend="${type == 'consumption'} ? 'active'"
+		                        th:href="@{/admin/reports(type='consumption')}">Tiêu thụ theo hộ</a></li>
+	</ul>
+
+	<!-- Doanh thu theo kỳ -->
+	<div th:if="${type == 'revenue'}" id="report-revenue">
+		<form method="get" th:action="@{/admin/reports}" class="row g-2 mb-3" id="revenue-form">
+			<input type="hidden" name="type" value="revenue">
+			<div class="col-sm-4">
+				<label class="form-label" for="from">Từ kỳ</label>
+				<input class="form-control" type="month" id="from" name="from" th:value="${from}">
+			</div>
+			<div class="col-sm-4">
+				<label class="form-label" for="to">Đến kỳ</label>
+				<input class="form-control" type="month" id="to" name="to" th:value="${to}">
+			</div>
+			<div class="col-sm-4 d-flex align-items-end gap-2">
+				<button type="submit" id="btn-view" class="btn btn-primary">Xem</button>
+				<a class="btn btn-outline-success" id="btn-export" th:href="@{/admin/reports/revenue.csv(from=${from}, to=${to})}">Xuất CSV</a>
+			</div>
+		</form>
+		<div class="table-responsive" th:if="${revenue != null}">
+			<table class="table table-striped bg-white" id="revenue-table">
+				<thead class="table-light">
+				<tr>
+					<th>Kỳ</th>
+					<th class="money">Số hóa đơn</th>
+					<th class="money">Tổng kWh</th>
+					<th class="money">Tổng tiền phát hành</th>
+					<th class="money">Đã thu</th>
+					<th class="money">Còn nợ</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="r : ${revenue}">
+					<td th:text="${@fmt.period(r.year(), r.month())}">10/2026</td>
+					<td class="money" th:text="${r.billCount()}">1</td>
+					<td class="money" th:text="${@fmt.number(r.totalKwh())}">250</td>
+					<td class="money" th:text="${@fmt.money(r.issued())}">636.768 đ</td>
+					<td class="money" th:text="${@fmt.money(r.collected())}">0 đ</td>
+					<td class="money" th:text="${@fmt.money(r.outstanding())}">636.768 đ</td>
+				</tr>
+				<tr th:if="${revenue.isEmpty()}">
+					<td colspan="6" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+				</tr>
+				</tbody>
+				<tfoot th:if="${!revenue.isEmpty()}">
+				<tr class="table-light fw-bold">
+					<td>Tổng</td>
+					<td class="money" th:text="${@fmt.number(#aggregates.sum(revenue.![billCount()]))}">0</td>
+					<td class="money" th:text="${@fmt.number(#aggregates.sum(revenue.![totalKwh()]))}">0</td>
+					<td class="money" th:text="${@fmt.money(#aggregates.sum(revenue.![issued()]))}">0 đ</td>
+					<td class="money" th:text="${@fmt.money(#aggregates.sum(revenue.![collected()]))}">0 đ</td>
+					<td class="money" th:text="${@fmt.money(#aggregates.sum(revenue.![outstanding()]))}">0 đ</td>
+				</tr>
+				</tfoot>
+			</table>
+		</div>
+	</div>
+
+	<!-- Danh sách nợ -->
+	<div th:if="${type == 'debts'}" id="report-debts">
+		<form method="get" th:action="@{/admin/reports}" class="row g-2 mb-3" id="debts-form">
+			<input type="hidden" name="type" value="debts">
+			<div class="col-sm-5 d-flex align-items-end">
+				<div class="form-check">
+					<input class="form-check-input" type="checkbox" id="overdueOnly" name="overdueOnly" value="true" th:checked="${overdueOnly}">
+					<label class="form-check-label" for="overdueOnly">Chỉ hiển thị hóa đơn quá hạn</label>
+				</div>
+			</div>
+			<div class="col-sm-7 d-flex align-items-end gap-2">
+				<button type="submit" id="btn-view" class="btn btn-primary">Xem</button>
+				<a class="btn btn-outline-success" id="btn-export" th:href="@{/admin/reports/debts.csv(overdueOnly=${overdueOnly})}">Xuất CSV</a>
+			</div>
+		</form>
+		<div class="table-responsive">
+			<table class="table table-striped bg-white" id="debts-table">
+				<thead class="table-light">
+				<tr>
+					<th>Mã hộ</th>
+					<th>Họ tên</th>
+					<th>Điện thoại</th>
+					<th>Số hóa đơn</th>
+					<th>Kỳ</th>
+					<th>Hạn</th>
+					<th class="money">Số tiền</th>
+					<th class="money">Quá hạn (ngày)</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="d : ${debts}">
+					<td th:text="${d.bill().customer.customerCode}">KH000001</td>
+					<td th:text="${d.bill().customer.fullName}">Nguyễn Văn A</td>
+					<td th:text="${d.bill().customer.phone}">0900000000</td>
+					<td><a th:href="@{/admin/bills/{id}(id=${d.bill().id})}" th:text="${d.bill().billNo}">HD202610-KH000001</a></td>
+					<td th:text="${@fmt.period(d.bill().periodYear, d.bill().periodMonth)}">10/2026</td>
+					<td th:text="${@fmt.date(d.bill().dueDate)}">16/10/2026</td>
+					<td class="money" th:text="${@fmt.money(d.bill().totalAmount)}">636.768 đ</td>
+					<td class="money" th:text="${d.overdueDays()}">0</td>
+				</tr>
+				<tr th:if="${debts.isEmpty()}">
+					<td colspan="8" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Tiêu thụ theo hộ -->
+	<div th:if="${type == 'consumption'}" id="report-consumption">
+		<form method="get" th:action="@{/admin/reports}" class="row g-2 mb-3" id="consumption-form">
+			<input type="hidden" name="type" value="consumption">
+			<div class="col-sm-4">
+				<label class="form-label" for="period">Kỳ</label>
+				<input class="form-control" type="month" id="period" name="period" th:value="${period}">
+			</div>
+			<div class="col-sm-8 d-flex align-items-end gap-2">
+				<button type="submit" id="btn-view" class="btn btn-primary">Xem</button>
+				<a class="btn btn-outline-success" id="btn-export" th:href="@{/admin/reports/consumption.csv(period=${period})}">Xuất CSV</a>
+			</div>
+		</form>
+		<div class="table-responsive">
+			<table class="table table-striped bg-white" id="consumption-table">
+				<thead class="table-light">
+				<tr>
+					<th>Mã hộ</th>
+					<th>Họ tên</th>
+					<th>Số công tơ</th>
+					<th class="money">Chỉ số cũ</th>
+					<th class="money">Chỉ số mới</th>
+					<th class="money">kWh</th>
+					<th class="money">Tiền</th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="b : ${consumption}">
+					<td th:text="${b.customer.customerCode}">KH000001</td>
+					<td th:text="${b.customer.fullName}">Nguyễn Văn A</td>
+					<td th:text="${b.customer.meterNumber}">CT000001</td>
+					<td class="money" th:text="${b.reading.previousReading}">0</td>
+					<td class="money" th:text="${b.reading.currentReading}">250</td>
+					<td class="money" th:text="${b.consumptionKwh}">250</td>
+					<td class="money" th:text="${@fmt.money(b.totalAmount)}">636.768 đ</td>
+				</tr>
+				<tr th:if="${consumption.isEmpty()}">
+					<td colspan="7" class="text-center text-muted" id="no-data">Không có dữ liệu</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</main>
+</body>
+</html>
