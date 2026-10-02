@@ -1,0 +1,628 @@
+<title>Use-case hệ thống tính tiền điện</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap">
+<style>
+/* Bố cục: một cột tài liệu rộng 1000px, thanh điều hướng dính trên cùng, mỗi use-case là một thẻ riêng */
+:root{
+  --bg:#f2f5f8; --surface:#ffffff; --surface-2:#eef2f6;
+  --ink:#16202c; --muted:#5a6b7b; --line:#d6dee7;
+  --accent:#0a6b74; --accent-soft:#e0eef0; --warn:#a9501c; --warn-soft:#f6ebe2;
+  --font-display:"IBM Plex Serif",Georgia,"Times New Roman",serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1c242d;
+  --ink:#e3eaf1; --muted:#97a6b5; --line:#2a333d;
+  --accent:#58c6ce; --accent-soft:#14323a; --warn:#dd9d62; --warn-soft:#2d2117;
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#161d25; --surface-2:#1c242d;
+  --ink:#e3eaf1; --muted:#97a6b5; --line:#2a333d;
+  --accent:#58c6ce; --accent-soft:#14323a; --warn:#dd9d62; --warn-soft:#2d2117;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1000px;margin:0 auto;padding-inline:20px;padding-block:0 72px}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-block:12px 10px}
+.brand{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.brand b{font-family:var(--font-display);font-weight:600;font-size:17px}
+.brand span{color:var(--muted);font-size:12.5px}
+nav.chips{display:flex;gap:6px;overflow-x:auto;margin-top:10px;padding-bottom:2px}
+nav.chips a{flex:0 0 auto;font-family:var(--font-mono);font-size:12px;text-decoration:none;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 10px;background:var(--surface)}
+nav.chips a:hover{color:var(--accent);border-color:var(--accent)}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.hero{padding-block:40px 28px;border-bottom:1px solid var(--line)}
+.eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-family:var(--font-display);font-weight:600;font-size:clamp(28px,5.2vw,42px);line-height:1.15;margin:0;text-wrap:balance}
+.lede{max-width:64ch;color:var(--muted);margin:14px 0 0;font-size:16px}
+.facts{display:flex;flex-wrap:wrap;gap:12px 28px;margin:22px 0 0;font-size:13.5px}
+.facts div{min-width:0}
+.facts dt{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.facts dd{margin:2px 0 0;font-weight:500}
+
+section{padding-block:34px 0}
+h2{font-family:var(--font-display);font-weight:600;font-size:24px;margin:0 0 4px;text-wrap:balance}
+h2 .num{font-family:var(--font-mono);font-size:14px;color:var(--accent);margin-right:10px;font-weight:400}
+.sub{color:var(--muted);margin:0 0 18px;max-width:70ch;font-size:14.5px}
+
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px}
+th,td{text-align:left;padding:9px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{background:var(--surface-2);font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td code,p code,li code{font-family:var(--font-mono);font-size:12.5px;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.uc-ref{font-family:var(--font-mono);font-size:12.5px;color:var(--accent);white-space:nowrap}
+.num-col{font-variant-numeric:tabular-nums}
+
+figure{margin:0}
+figcaption{font-size:13px;color:var(--muted);margin-top:8px;max-width:72ch}
+.diagram{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:10px}
+.diagram svg{display:block;min-width:700px;width:100%;height:auto}
+.sys-box{fill:none;stroke:var(--line);stroke-width:1.5}
+.sys-label{fill:var(--muted);font-family:var(--font-mono);font-size:12px}
+.uc{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.4}
+.uc-txt{fill:var(--ink);font-family:var(--font-body);font-size:12.5px;text-anchor:middle}
+.uc-code{font-weight:600}
+.actor-fig{fill:none;stroke:var(--ink);stroke-width:1.6;stroke-linecap:round}
+.actor-txt{fill:var(--ink);font-family:var(--font-body);font-size:12.5px;font-weight:600;text-anchor:middle}
+.actor-sub{fill:var(--muted);font-family:var(--font-body);font-size:11.5px;text-anchor:middle}
+.assoc{stroke:var(--muted);stroke-width:1.3;fill:none}
+.dep{stroke:var(--accent);stroke-width:1.3;fill:none;stroke-dasharray:6 4}
+.dep-txt{fill:var(--accent);font-family:var(--font-mono);font-size:11px;text-anchor:middle}
+.gen{stroke:var(--muted);stroke-width:1.3;fill:none}
+.gen-head{fill:var(--bg);stroke:var(--muted);stroke-width:1.3}
+
+.ucard{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-top:18px;overflow:hidden;scroll-margin-top:130px}
+.ucard>.head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:14px 18px;border-bottom:1px solid var(--line);background:var(--surface-2)}
+.ucard .code{font-family:var(--font-mono);font-size:13px;font-weight:500;color:var(--accent)}
+.ucard .name{font-family:var(--font-display);font-weight:600;font-size:18px}
+.ucard .body{padding:14px 18px 20px}
+.ucard .body>p{margin:0 0 4px}
+.meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 22px;margin:0}
+.meta dt{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.meta dd{margin:3px 0 0;font-size:14px}
+h4{font-size:12px;font-family:var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:20px 0 6px;font-weight:500}
+ol,ul{margin:0;padding-left:20px}
+ol li,ul li{margin:3px 0}
+.exc{background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:0 8px 8px 0;padding:10px 14px}
+.exc ul{padding-left:18px}
+.exc li::marker{color:var(--warn)}
+.note{color:var(--muted);font-size:13.5px;margin:10px 0 0}
+footer{margin-top:44px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+@media (max-width:520px){ body{font-size:14.5px} .ucard .name{font-size:16.5px} }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <b>Đặc tả use-case</b>
+      <span>Hệ thống tính tiền điện cho hộ cá nhân · SRS mục 2.3 · v1.0.0</span>
+    </div>
+    <nav class="chips" aria-label="Điều hướng use-case">
+      <a href="#bieudo">Biểu đồ</a>
+      <a href="#tomtat">Tóm tắt</a>
+      <a href="#quanhe">Quan hệ</a>
+      <a href="#UC01">UC01</a><a href="#UC02">UC02</a><a href="#UC03">UC03</a><a href="#UC04">UC04</a>
+      <a href="#UC05">UC05</a><a href="#UC06">UC06</a><a href="#UC07">UC07</a><a href="#UC08">UC08</a>
+      <a href="#UC09">UC09</a><a href="#UC10">UC10</a><a href="#UC11">UC11</a><a href="#UC12">UC12</a>
+      <a href="#UC13">UC13</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="hero">
+  <p class="eyebrow">Đề tài 1 · Nhóm chức năng 1.1 và 1.2</p>
+  <h1>Use-case hệ thống tính tiền điện</h1>
+  <p class="lede">Mười ba use-case mô tả trọn một kỳ tiền điện: hộ dùng điện đăng ký, quản trị viên ghi chỉ số công tơ, hệ thống tính tiền bậc thang rồi phát hành hóa đơn, hộ đóng tiền và nhận email xác nhận.</p>
+  <dl class="facts">
+    <div><dt>Tác nhân</dt><dd>5 — 3 người dùng, 2 hệ thống</dd></div>
+    <div><dt>Use-case</dt><dd>13</dd></div>
+    <div><dt>Yêu cầu chức năng</dt><dd>FR01 – FR20</dd></div>
+    <div><dt>Nguồn</dt><dd>docs/SRS.md mục 2.3</dd></div>
+  </dl>
+</div>
+
+<section id="tacnhan">
+  <h2><span class="num">1</span>Tác nhân</h2>
+  <p class="sub">Ba tác nhân người dùng ứng với ba mức quyền trong Spring Security, cộng hai tác nhân hệ thống nằm ngoài biên phần mềm.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Tác nhân</th><th>Loại</th><th>Mô tả</th></tr></thead>
+      <tbody>
+        <tr><td><b>Guest</b></td><td>Người dùng</td><td>Chưa đăng nhập: đăng ký tài khoản, đăng nhập, ước tính tiền điện</td></tr>
+        <tr><td><b>CUSTOMER</b></td><td>Người dùng</td><td>Hộ dùng điện đã đăng nhập: xem và đóng hóa đơn của chính mình, cập nhật hồ sơ</td></tr>
+        <tr><td><b>ADMIN</b></td><td>Người dùng</td><td>Nhân viên điện lực: ghi chỉ số, thu tiền tại quầy, theo dõi danh sách, báo cáo, gửi thông báo, cấu hình</td></tr>
+        <tr><td><b>Bộ lập lịch</b></td><td>Hệ thống</td><td>Tác vụ định kỳ chạy hằng ngày lúc 08:00 để gửi email nhắc nợ và quá hạn</td></tr>
+        <tr><td><b>Máy chủ email</b></td><td>Hệ thống ngoài</td><td>Nhận và chuyển email thông báo qua SMTP</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="bieudo">
+  <h2><span class="num">2</span>Biểu đồ use-case</h2>
+  <p class="sub">Tách làm hai hình theo hai nhóm chức năng của đề tài. Nét liền là quan hệ kết hợp giữa tác nhân và use-case, nét đứt là «include» hoặc «extend», mũi tên tam giác rỗng là tổng quát hóa tác nhân.</p>
+
+  <figure>
+    <div class="diagram">
+      <svg viewBox="0 0 1060 690" role="img" aria-label="Biểu đồ use-case nhóm chức năng 1.1">
+        <defs>
+          <g id="stick">
+            <circle class="actor-fig" cx="0" cy="-28" r="11"/>
+            <path class="actor-fig" d="M0 -17 V 8 M -16 -6 H 16 M 0 8 L -12 28 M 0 8 L 12 28"/>
+          </g>
+          <marker id="tri" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="11" markerHeight="11" orient="auto-start-reverse">
+            <path class="gen-head" d="M0 0 L12 6 L0 12 Z"/>
+          </marker>
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0 1 L9 5 L0 9" fill="none" stroke="currentColor" stroke-width="1.4"/>
+          </marker>
+        </defs>
+
+        <rect class="sys-box" x="280" y="25" width="620" height="615" rx="14"/>
+        <text class="sys-label" x="300" y="48">Hệ thống tính tiền điện — nhóm chức năng 1.1</text>
+
+        <g><use href="#stick" x="130" y="160"/>
+          <text class="actor-txt" x="130" y="208">Guest</text>
+          <text class="actor-sub" x="130" y="224">chưa đăng nhập</text></g>
+        <g><use href="#stick" x="130" y="400"/>
+          <text class="actor-txt" x="130" y="448">CUSTOMER</text>
+          <text class="actor-sub" x="130" y="464">hộ dùng điện</text></g>
+        <g><use href="#stick" x="130" y="585"/>
+          <text class="actor-txt" x="130" y="633">ADMIN</text></g>
+        <g><use href="#stick" x="990" y="455"/>
+          <text class="actor-txt" x="990" y="503">Máy chủ email</text>
+          <text class="actor-sub" x="990" y="519">SMTP</text></g>
+
+        <g color="var(--muted)">
+          <path class="gen" d="M130 362 V 212" marker-end="url(#tri)"/>
+          <path class="gen" d="M103 578 H 58 V 165 H 98" marker-end="url(#tri)"/>
+        </g>
+
+        <path class="assoc" d="M152 148 L 288 85"/>
+        <path class="assoc" d="M155 160 H 285"/>
+        <path class="assoc" d="M152 176 L 288 238"/>
+        <path class="assoc" d="M152 386 L 288 338"/>
+        <path class="assoc" d="M155 406 L 285 415"/>
+        <path class="assoc" d="M152 420 L 288 492"/>
+        <path class="assoc" d="M155 585 H 285"/>
+        <path class="assoc" d="M160 566 L 288 424"/>
+
+        <g>
+          <ellipse class="uc" cx="430" cy="75" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="71"><tspan class="uc-code">UC01</tspan> Đăng ký tài khoản</text>
+          <text class="uc-txt" x="430" y="88">và hộ dùng điện</text>
+
+          <ellipse class="uc" cx="430" cy="160" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="164"><tspan class="uc-code">UC02</tspan> Đăng nhập / Đăng xuất</text>
+
+          <ellipse class="uc" cx="430" cy="245" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="249"><tspan class="uc-code">UC03</tspan> Ước tính tiền điện</text>
+
+          <ellipse class="uc" cx="430" cy="330" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="334"><tspan class="uc-code">UC06</tspan> Xem hóa đơn</text>
+
+          <ellipse class="uc" cx="430" cy="415" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="419"><tspan class="uc-code">UC07</tspan> Đóng tiền hóa đơn</text>
+
+          <ellipse class="uc" cx="430" cy="500" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="496"><tspan class="uc-code">UC13</tspan> Cập nhật hồ sơ,</text>
+          <text class="uc-txt" x="430" y="513">đổi mật khẩu</text>
+
+          <ellipse class="uc" cx="430" cy="585" rx="145" ry="33"/>
+          <text class="uc-txt" x="430" y="589"><tspan class="uc-code">UC04</tspan> Cập nhật chỉ số điện</text>
+        </g>
+
+        <g>
+          <ellipse class="uc" cx="755" cy="585" rx="130" ry="33"/>
+          <text class="uc-txt" x="755" y="581"><tspan class="uc-code">UC05</tspan> Tính tiền điện</text>
+          <text class="uc-txt" x="755" y="598">và lập hóa đơn</text>
+
+          <ellipse class="uc" cx="755" cy="455" rx="130" ry="33"/>
+          <text class="uc-txt" x="755" y="451"><tspan class="uc-code">UC10</tspan> Gửi thông báo</text>
+          <text class="uc-txt" x="755" y="468">email</text>
+        </g>
+
+        <g color="var(--accent)">
+          <path class="dep" d="M577 585 H 621" marker-end="url(#arr)"/>
+          <text class="dep-txt" x="599" y="572">«include»</text>
+          <path class="dep" d="M755 551 V 494" marker-end="url(#arr)"/>
+          <text class="dep-txt" x="812" y="526">«include»</text>
+          <path class="dep" d="M572 428 L 632 452" marker-end="url(#arr)"/>
+          <text class="dep-txt" x="600" y="412">«include»</text>
+        </g>
+        <path class="assoc" d="M887 455 H 950"/>
+      </svg>
+    </div>
+    <figcaption>Hình 1 — Nhóm chức năng 1.1: đăng ký, cập nhật số điện, tính tiền điện, đóng tiền. Ghi chỉ số xong là hệ thống tự lập hóa đơn rồi gửi email, nên UC04 «include» UC05 «include» UC10.</figcaption>
+  </figure>
+
+  <figure style="margin-top:26px">
+    <div class="diagram">
+      <svg viewBox="0 0 950 540" role="img" aria-label="Biểu đồ use-case nhóm chức năng 1.2">
+        <rect class="sys-box" x="280" y="25" width="480" height="465" rx="14"/>
+        <text class="sys-label" x="300" y="48">Hệ thống tính tiền điện — nhóm chức năng 1.2</text>
+
+        <g><use href="#stick" x="120" y="230"/>
+          <text class="actor-txt" x="120" y="278">ADMIN</text>
+          <text class="actor-sub" x="120" y="294">quản trị viên</text></g>
+        <g><use href="#stick" x="120" y="430"/>
+          <text class="actor-txt" x="120" y="478">Bộ lập lịch</text>
+          <text class="actor-sub" x="120" y="494">hằng ngày 08:00</text></g>
+        <g><use href="#stick" x="840" y="430"/>
+          <text class="actor-txt" x="840" y="478">Máy chủ email</text>
+          <text class="actor-sub" x="840" y="494">SMTP</text></g>
+
+        <path class="assoc" d="M145 214 L 368 90"/>
+        <path class="assoc" d="M148 224 L 368 170"/>
+        <path class="assoc" d="M148 240 L 368 252"/>
+        <path class="assoc" d="M145 250 L 368 332"/>
+        <path class="assoc" d="M145 430 H 368"/>
+        <path class="assoc" d="M662 430 H 805"/>
+
+        <g>
+          <ellipse class="uc" cx="515" cy="85" rx="147" ry="33"/>
+          <text class="uc-txt" x="515" y="89"><tspan class="uc-code">UC08</tspan> Quản lý hộ dùng điện</text>
+
+          <ellipse class="uc" cx="515" cy="170" rx="147" ry="33"/>
+          <text class="uc-txt" x="515" y="166"><tspan class="uc-code">UC09</tspan> Theo dõi danh sách</text>
+          <text class="uc-txt" x="515" y="183">chỉ số, hóa đơn, thanh toán</text>
+
+          <ellipse class="uc" cx="515" cy="255" rx="147" ry="33"/>
+          <text class="uc-txt" x="515" y="259"><tspan class="uc-code">UC11</tspan> Xuất báo cáo</text>
+
+          <ellipse class="uc" cx="515" cy="340" rx="147" ry="33"/>
+          <text class="uc-txt" x="515" y="344"><tspan class="uc-code">UC12</tspan> Cấu hình hệ thống</text>
+
+          <ellipse class="uc" cx="515" cy="430" rx="147" ry="33"/>
+          <text class="uc-txt" x="515" y="426"><tspan class="uc-code">UC10</tspan> Gửi thông báo email</text>
+          <text class="uc-txt" x="515" y="443">và ghi nhật ký</text>
+        </g>
+
+        <g color="var(--accent)">
+          <path class="dep" d="M515 204 V 219" marker-end="url(#arr)"/>
+          <text class="dep-txt" x="585" y="215">«extend»</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Hình 2 — Nhóm chức năng 1.2: thông báo qua email, theo dõi danh sách, xuất báo cáo, cấu hình. Từ màn hình danh sách, ADMIN xuất thẳng dữ liệu đang lọc ra CSV nên UC09 «extend» UC11.</figcaption>
+  </figure>
+</section>
+
+<section id="tomtat">
+  <h2><span class="num">3</span>Bảng tóm tắt use-case</h2>
+  <p class="sub">Mỗi use-case ứng với một hoặc vài yêu cầu chức năng ở SRS mục 2.2, dùng làm cơ sở truy vết khi thiết kế test case.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Mã</th><th>Tên use-case</th><th>Tác nhân chính</th><th>Kích hoạt bởi</th><th>FR</th></tr></thead>
+      <tbody>
+        <tr><td class="uc-ref">UC01</td><td>Đăng ký tài khoản và hộ dùng điện</td><td>Guest</td><td>Người dùng mở <code>/register</code></td><td>FR01</td></tr>
+        <tr><td class="uc-ref">UC02</td><td>Đăng nhập / Đăng xuất</td><td>Guest, CUSTOMER, ADMIN</td><td>Người dùng mở <code>/login</code></td><td>FR02</td></tr>
+        <tr><td class="uc-ref">UC03</td><td>Ước tính tiền điện</td><td>Mọi người dùng</td><td>Người dùng mở <code>/estimate</code></td><td>FR03</td></tr>
+        <tr><td class="uc-ref">UC04</td><td>Cập nhật chỉ số điện</td><td>ADMIN</td><td>Cuối mỗi kỳ ghi chỉ số công tơ</td><td>FR04, FR05</td></tr>
+        <tr><td class="uc-ref">UC05</td><td>Tính tiền điện và lập hóa đơn</td><td>Hệ thống</td><td>UC04, tự động</td><td>FR06</td></tr>
+        <tr><td class="uc-ref">UC06</td><td>Xem hóa đơn</td><td>CUSTOMER</td><td>Hộ mở danh sách hóa đơn</td><td>FR07</td></tr>
+        <tr><td class="uc-ref">UC07</td><td>Đóng tiền hóa đơn</td><td>CUSTOMER, ADMIN</td><td>Hộ thanh toán trực tuyến, hoặc ADMIN thu tiền mặt</td><td>FR08, FR09</td></tr>
+        <tr><td class="uc-ref">UC08</td><td>Quản lý hộ dùng điện</td><td>ADMIN</td><td>ADMIN tra cứu, sửa, khóa hoặc mở hộ</td><td>FR15</td></tr>
+        <tr><td class="uc-ref">UC09</td><td>Theo dõi danh sách</td><td>ADMIN</td><td>ADMIN mở bảng điều khiển hoặc danh sách</td><td>FR16, FR17</td></tr>
+        <tr><td class="uc-ref">UC10</td><td>Gửi thông báo email</td><td>Hệ thống, ADMIN</td><td>UC05, UC07, bộ lập lịch 08:00, gửi thủ công</td><td>FR11 – FR14</td></tr>
+        <tr><td class="uc-ref">UC11</td><td>Xuất báo cáo</td><td>ADMIN</td><td>ADMIN mở trang báo cáo</td><td>FR18</td></tr>
+        <tr><td class="uc-ref">UC12</td><td>Cấu hình hệ thống</td><td>ADMIN</td><td>ADMIN mở trang cấu hình</td><td>FR19, FR20</td></tr>
+        <tr><td class="uc-ref">UC13</td><td>Cập nhật hồ sơ cá nhân và đổi mật khẩu</td><td>CUSTOMER</td><td>Hộ mở trang hồ sơ</td><td>FR10</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="quanhe">
+  <h2><span class="num">4</span>Quan hệ giữa các use-case</h2>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Quan hệ</th><th>Giữa</th><th>Diễn giải</th></tr></thead>
+      <tbody>
+        <tr><td><code>«include»</code></td><td class="uc-ref">UC04 → UC05</td><td>Mỗi lần ghi chỉ số hợp lệ luôn kéo theo tính tiền và lập hóa đơn</td></tr>
+        <tr><td><code>«include»</code></td><td class="uc-ref">UC05 → UC10</td><td>Lập hóa đơn xong luôn gửi email NEW_BILL</td></tr>
+        <tr><td><code>«include»</code></td><td class="uc-ref">UC07 → UC10</td><td>Thanh toán thành công luôn gửi email PAYMENT_CONFIRMATION</td></tr>
+        <tr><td><code>«include»</code></td><td class="uc-ref">UC04, UC06 – UC13 → UC02</td><td>Mọi use-case trừ UC01 và UC03 đều yêu cầu đã đăng nhập đúng quyền</td></tr>
+        <tr><td><code>«extend»</code></td><td class="uc-ref">UC08 → UC06</td><td>Từ chi tiết hộ, ADMIN có thể xem thêm hóa đơn của hộ đó</td></tr>
+        <tr><td><code>«extend»</code></td><td class="uc-ref">UC09 → UC11</td><td>Từ danh sách đang lọc, ADMIN có thể xuất thẳng ra CSV</td></tr>
+        <tr><td>Tổng quát hóa</td><td class="uc-ref">CUSTOMER, ADMIN → Guest</td><td>Người đã đăng nhập vẫn dùng được UC03 ước tính tiền điện</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">Để hình dễ đọc, quan hệ «include» tới UC02 chỉ ghi trong bảng; điều kiện đăng nhập đã nêu ở phần tiền điều kiện của từng use-case.</p>
+</section>
+
+<section id="chitiet">
+  <h2><span class="num">5</span>Đặc tả chi tiết</h2>
+  <p class="sub">Mỗi use-case gồm tác nhân, điều kiện trước và sau, luồng chính, luồng ngoại lệ và ràng buộc dữ liệu — đủ chi tiết để sinh test case ở YC3.</p>
+
+  <article class="ucard" id="UC01">
+    <div class="head"><span class="code">UC01</span><span class="name">Đăng ký tài khoản và hộ dùng điện</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>Guest</dd></div>
+        <div><dt>Tiền điều kiện</dt><dd>Chưa đăng nhập</dd></div>
+        <div><dt>Hậu điều kiện</dt><dd>Tạo tài khoản role CUSTOMER và hồ sơ hộ mã <code>KHxxxxxx</code>, trạng thái ACTIVE</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <ol>
+        <li>Guest mở trang <code>/register</code>.</li>
+        <li>Guest nhập các trường theo bảng dưới và bấm <i>Đăng ký</i>.</li>
+        <li>Hệ thống kiểm tra dữ liệu hợp lệ và không trùng.</li>
+        <li>Hệ thống lưu tài khoản (mật khẩu băm BCrypt), sinh mã hộ, chuyển sang trang đăng nhập kèm thông báo thành công.</li>
+      </ol>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul>
+        <li><b>E1</b> — Có trường không hợp lệ: hiển thị lỗi cạnh từng trường, giữ lại dữ liệu đã nhập trừ mật khẩu.</li>
+        <li><b>E2</b> — Tên đăng nhập, email hoặc số công tơ đã tồn tại: báo lỗi tương ứng.</li>
+        <li><b>E3</b> — Mật khẩu xác nhận không khớp: báo lỗi.</li>
+      </ul></div>
+      <h4>Dữ liệu và ràng buộc</h4>
+      <div class="scroll"><table>
+        <thead><tr><th>Trường</th><th>Bắt buộc</th><th>Quy tắc</th></tr></thead>
+        <tbody>
+          <tr><td>Tên đăng nhập</td><td>Có</td><td>4–30 ký tự, chỉ gồm chữ, số, <code>_</code>, <code>.</code>; duy nhất</td></tr>
+          <tr><td>Mật khẩu</td><td>Có</td><td>≥ 8 ký tự, có ít nhất 1 chữ và 1 số</td></tr>
+          <tr><td>Xác nhận mật khẩu</td><td>Có</td><td>Trùng mật khẩu</td></tr>
+          <tr><td>Họ tên</td><td>Có</td><td>2–100 ký tự</td></tr>
+          <tr><td>Địa chỉ</td><td>Có</td><td>≤ 255 ký tự</td></tr>
+          <tr><td>Số điện thoại</td><td>Có</td><td>10 chữ số, bắt đầu bằng 0</td></tr>
+          <tr><td>Email</td><td>Có</td><td>Đúng định dạng, ≤ 100 ký tự, duy nhất</td></tr>
+          <tr><td>Số công tơ</td><td>Có</td><td>6–15 ký tự chữ hoặc số, duy nhất</td></tr>
+          <tr><td>Chỉ số ban đầu (kWh)</td><td>Có</td><td>Số nguyên 0 – 9.999.999</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC02">
+    <div class="head"><span class="code">UC02</span><span class="name">Đăng nhập / Đăng xuất</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>Guest → CUSTOMER hoặc ADMIN</dd></div>
+        <div><dt>Tiền điều kiện</dt><dd>Tài khoản đã tồn tại và đang bật</dd></div>
+        <div><dt>Hậu điều kiện</dt><dd>Có phiên làm việc, hết hạn sau 30 phút không hoạt động</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <p>Nhập tên đăng nhập và mật khẩu tại <code>/login</code> → hệ thống xác thực → CUSTOMER chuyển tới <code>/customer/bills</code>, ADMIN chuyển tới <code>/admin</code>.</p>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul>
+        <li>Sai tên đăng nhập hoặc mật khẩu: báo “Tên đăng nhập hoặc mật khẩu không đúng”, không nói rõ sai trường nào.</li>
+        <li>Hộ bị khóa: báo “Tài khoản đã bị khóa”.</li>
+        <li>Truy cập trang không đủ quyền: trang 403. Chưa đăng nhập mà vào trang cần quyền: chuyển về <code>/login</code>.</li>
+      </ul></div>
+      <p class="note"><b>Đăng xuất:</b> bấm <i>Đăng xuất</i> → hủy phiên, quay về <code>/login</code>.</p>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC03">
+    <div class="head"><span class="code">UC03</span><span class="name">Ước tính tiền điện</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>Mọi người dùng, không cần đăng nhập</dd></div>
+        <div><dt>Mô tả</dt><dd>Nhập số kWh dự kiến, xem tiền điện chi tiết theo từng bậc</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <p>Mở <code>/estimate</code> → nhập số kWh (số nguyên 0 – 99.999) → hệ thống dùng biểu giá và VAT hiện hành, hiển thị bảng từng bậc gồm kWh, đơn giá, thành tiền, rồi tiền điện, VAT và tổng cộng.</p>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul><li>Để trống, số âm, không phải số nguyên hoặc vượt giới hạn: báo lỗi và không tính.</li></ul></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC04">
+    <div class="head"><span class="code">UC04</span><span class="name">Cập nhật chỉ số điện</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>ADMIN</dd></div>
+        <div><dt>Tiền điều kiện</dt><dd>Đã đăng nhập ADMIN; hộ ở trạng thái ACTIVE</dd></div>
+        <div><dt>Hậu điều kiện</dt><dd>Lưu chỉ số của kỳ, lập hóa đơn (UC05), gửi email hóa đơn (UC10)</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <ol>
+        <li>ADMIN mở <code>/admin/readings/new</code>, chọn hộ (tìm theo mã, tên, số công tơ).</li>
+        <li>Hệ thống hiển thị chỉ số cũ — chỉ số kỳ gần nhất, hoặc chỉ số ban đầu nếu chưa có kỳ nào — và gợi ý kỳ tiếp theo.</li>
+        <li>ADMIN nhập kỳ (tháng/năm), ngày ghi và chỉ số mới, bấm <i>Lưu</i>.</li>
+        <li>Hệ thống kiểm tra quy tắc BR-05 → lưu chỉ số → lập hóa đơn → gửi email → hiển thị hóa đơn vừa lập.</li>
+      </ol>
+      <h4>Luồng thay thế — sửa chỉ số (FR05)</h4>
+      <p>Từ chi tiết hóa đơn chưa thanh toán của kỳ gần nhất, ADMIN chọn <i>Sửa chỉ số</i> rồi nhập chỉ số mới; hệ thống cập nhật chỉ số và tính lại hóa đơn.</p>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul>
+        <li><b>E1</b> — Chỉ số mới nhỏ hơn chỉ số cũ: “Chỉ số mới phải lớn hơn hoặc bằng chỉ số cũ”.</li>
+        <li><b>E2</b> — Kỳ đã có chỉ số, hoặc kỳ không nằm sau kỳ gần nhất: báo lỗi.</li>
+        <li><b>E3</b> — Ngày ghi ở tương lai hoặc không thuộc kỳ: báo lỗi.</li>
+        <li><b>E4</b> — Hộ bị khóa: không cho ghi.</li>
+        <li><b>E5</b> — Sửa chỉ số khi hóa đơn đã thanh toán (số tiền &gt; 0) hoặc không phải kỳ gần nhất: không cho phép. Hóa đơn 0 đồng đã tự đánh dấu PAID vẫn được sửa; nếu sau khi sửa tổng tiền &gt; 0 thì hóa đơn chuyển lại UNPAID.</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC05">
+    <div class="head"><span class="code">UC05</span><span class="name">Tính tiền điện và lập hóa đơn</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>Hệ thống, kích hoạt bởi UC04</dd></div>
+        <div><dt>Mô tả</dt><dd>Tính tiền theo bậc thang cộng VAT, lưu hóa đơn kèm chi tiết từng bậc như ảnh chụp tại thời điểm lập</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <p>Lấy biểu giá và VAT hiện hành → áp dụng công thức SRS mục 2.4 → lưu hóa đơn gồm số hóa đơn <code>HD&lt;yyyyMM&gt;-&lt;mã hộ&gt;</code>, kỳ, kWh, các dòng bậc, tiền điện, VAT, tổng, ngày lập, hạn thanh toán và trạng thái UNPAID.</p>
+      <p class="note"><b>Ghi chú:</b> đổi biểu giá sau này không làm thay đổi hóa đơn đã lập. Nếu tổng tiền bằng 0 do tiêu thụ 0 kWh, hóa đơn được đánh dấu PAID ngay và không phát sinh bản ghi thanh toán.</p>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC06">
+    <div class="head"><span class="code">UC06</span><span class="name">Xem hóa đơn</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>CUSTOMER</dd></div>
+        <div><dt>Mô tả</dt><dd>Xem danh sách hóa đơn của chính mình và chi tiết từng hóa đơn</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <p><code>/customer/bills</code> hiển thị hóa đơn mới nhất trước gồm kỳ, kWh, tổng tiền, hạn và trạng thái <i>Chưa thanh toán / Quá hạn / Đã thanh toán</i>, có lọc theo trạng thái và phân trang → chọn một hóa đơn để xem chi tiết từng bậc và lịch sử thanh toán.</p>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul><li>Truy cập hóa đơn của hộ khác: trả về 404, không tiết lộ sự tồn tại của hóa đơn.</li></ul></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC07">
+    <div class="head"><span class="code">UC07</span><span class="name">Đóng tiền hóa đơn</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>CUSTOMER trực tuyến (mô phỏng), ADMIN tại quầy</dd></div>
+        <div><dt>Tiền điều kiện</dt><dd>Hóa đơn ở trạng thái UNPAID, kể cả quá hạn</dd></div>
+        <div><dt>Hậu điều kiện</dt><dd>Tạo bản ghi thanh toán, hóa đơn chuyển PAID, gửi email xác nhận</dd></div>
+      </dl>
+      <h4>Luồng chính — CUSTOMER</h4>
+      <p>Mở chi tiết hóa đơn → chọn phương thức Chuyển khoản hoặc Ví điện tử → <i>Thanh toán</i> → hệ thống ghi nhận thanh toán đủ số tiền (mô phỏng cổng thanh toán luôn thành công), sinh mã giao dịch <code>PAY-…</code> và hiển thị biên nhận.</p>
+      <h4>Luồng chính — ADMIN</h4>
+      <p>Mở chi tiết hóa đơn bất kỳ → <i>Ghi nhận thu tiền mặt</i> → hệ thống ghi nhận phương thức CASH và người thu.</p>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul>
+        <li>Hóa đơn đã thanh toán, kể cả khi bấm hai lần hoặc mở hai tab: báo “Hóa đơn đã được thanh toán”, không tạo thanh toán thứ hai.</li>
+        <li>CUSTOMER chọn phương thức CASH: bị từ chối.</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC08">
+    <div class="head"><span class="code">UC08</span><span class="name">Quản lý hộ dùng điện</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>ADMIN</dd></div>
+        <div><dt>Mô tả</dt><dd>Tra cứu danh sách hộ, xem chi tiết, chỉnh sửa thông tin liên hệ, khóa và mở khóa</dd></div>
+      </dl>
+      <h4>Luồng chính</h4>
+      <p><code>/admin/customers</code> → tìm kiếm theo từ khóa gồm mã, họ tên, số công tơ, SĐT, email và lọc trạng thái → chọn hộ → xem chi tiết → <i>Sửa</i> họ tên, địa chỉ, SĐT, email; số công tơ và chỉ số ban đầu chỉ sửa được khi hộ chưa có chỉ số nào → hoặc <i>Khóa / Mở khóa</i>.</p>
+      <p class="note"><b>Quy tắc:</b> hộ bị khóa không đăng nhập được, không ghi được chỉ số mới, nhưng vẫn thanh toán được hóa đơn cũ qua ADMIN. Không xóa hộ, chỉ khóa, để giữ lịch sử.</p>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC09">
+    <div class="head"><span class="code">UC09</span><span class="name">Theo dõi danh sách</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>ADMIN</dd></div>
+        <div><dt>Mô tả</dt><dd>Xem và tìm kiếm các danh sách phục vụ vận hành</dd></div>
+      </dl>
+      <h4>Các danh sách</h4>
+      <div class="scroll"><table>
+        <thead><tr><th>Danh sách</th><th>Đường dẫn</th><th>Bộ lọc</th></tr></thead>
+        <tbody>
+          <tr><td>Hộ dùng điện</td><td><code>/admin/customers</code></td><td>Từ khóa, trạng thái</td></tr>
+          <tr><td>Chỉ số điện</td><td><code>/admin/readings</code></td><td>Từ khóa, kỳ</td></tr>
+          <tr><td>Hóa đơn</td><td><code>/admin/bills</code></td><td>Từ khóa, kỳ, trạng thái</td></tr>
+          <tr><td>Thanh toán</td><td><code>/admin/payments</code></td><td>Từ khóa, phương thức</td></tr>
+          <tr><td>Nhật ký thông báo</td><td><code>/admin/notifications</code></td><td>Loại, trạng thái</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Mỗi danh sách phân trang 10 dòng, sắp xếp mới nhất trước. Trạng thái hóa đơn loại trừ nhau: <i>Chưa thanh toán</i> còn hạn, <i>Quá hạn</i>, <i>Đã thanh toán</i>. Bảng điều khiển <code>/admin</code> hiển thị tổng số hộ đang hoạt động, số hóa đơn chưa thanh toán còn hạn, số hóa đơn quá hạn, tổng tiền còn nợ gồm cả quá hạn, và doanh thu đã thu trong tháng hiện tại.</p>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC10">
+    <div class="head"><span class="code">UC10</span><span class="name">Gửi thông báo email</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>Hệ thống, ADMIN, máy chủ email</dd></div>
+        <div><dt>Mô tả</dt><dd>Gửi email cho hộ và ghi nhật ký kết quả</dd></div>
+      </dl>
+      <h4>Bốn loại thông báo</h4>
+      <div class="scroll"><table>
+        <thead><tr><th>Loại</th><th>Thời điểm</th><th>Nội dung chính</th></tr></thead>
+        <tbody>
+          <tr><td><code>NEW_BILL</code></td><td>Ngay sau khi lập hóa đơn</td><td>Kỳ, kWh, tổng tiền, hạn thanh toán</td></tr>
+          <tr><td><code>REMINDER</code></td><td>Hằng ngày 08:00, cho hóa đơn UNPAID còn đúng N ngày đến hạn — N cấu hình được, mặc định 3</td><td>Nhắc đóng tiền</td></tr>
+          <tr><td><code>OVERDUE</code></td><td>Hằng ngày 08:00, cho hóa đơn UNPAID vừa quá hạn 1 ngày</td><td>Thông báo quá hạn</td></tr>
+          <tr><td><code>PAYMENT_CONFIRMATION</code></td><td>Ngay sau khi thanh toán</td><td>Số tiền, mã giao dịch</td></tr>
+        </tbody>
+      </table></div>
+      <h4>Luồng thủ công</h4>
+      <p>ADMIN vào <code>/admin/notifications</code> → <i>Gửi nhắc nợ ngay</i>: với mọi hóa đơn chưa thanh toán và chưa từng gửi thành công REMINDER hay OVERDUE, hệ thống gửi OVERDUE nếu hóa đơn đã quá hạn, ngược lại gửi REMINDER. Hoặc chọn <i>Gửi lại</i> cho từng thông báo thất bại hay bị bỏ qua. Gửi hàng loạt chạy nền, kết quả xem trong nhật ký.</p>
+      <h4>Quy tắc</h4>
+      <ul>
+        <li>Mỗi cặp hóa đơn và loại chỉ gửi tự động một lần.</li>
+        <li>Nếu email bị tắt trong cấu hình hoặc SMTP lỗi, nghiệp vụ chính là lập hóa đơn và thanh toán vẫn thành công; thông báo được ghi nhật ký trạng thái SKIPPED hoặc FAILED kèm lý do.</li>
+        <li>Mỗi lần gửi, kể cả thất bại, tạo một dòng nhật ký: hộ, hóa đơn, loại, email nhận, tiêu đề, trạng thái, thời gian, lỗi.</li>
+      </ul>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC11">
+    <div class="head"><span class="code">UC11</span><span class="name">Xuất báo cáo</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>ADMIN</dd></div>
+        <div><dt>Mô tả</dt><dd>Xem báo cáo trên màn hình và tải về CSV, mã UTF-8 có BOM để Excel đọc đúng tiếng Việt</dd></div>
+      </dl>
+      <h4>Ba báo cáo</h4>
+      <div class="scroll"><table>
+        <thead><tr><th>Báo cáo</th><th>Tham số</th><th>Cột</th></tr></thead>
+        <tbody>
+          <tr><td>Doanh thu theo kỳ</td><td>Từ kỳ – đến kỳ</td><td>Kỳ, số hóa đơn, tổng kWh, tổng tiền phát hành, đã thu, còn nợ</td></tr>
+          <tr><td>Danh sách nợ</td><td>Tùy chọn: chỉ quá hạn</td><td>Mã hộ, họ tên, SĐT, email, số hóa đơn, kỳ, hạn, số tiền, số ngày quá hạn</td></tr>
+          <tr><td>Tiêu thụ theo hộ</td><td>Kỳ</td><td>Mã hộ, họ tên, số công tơ, chỉ số cũ, chỉ số mới, kWh, tiền</td></tr>
+        </tbody>
+      </table></div>
+      <h4>Luồng ngoại lệ</h4>
+      <div class="exc"><ul>
+        <li>“Từ kỳ” sau “đến kỳ”: báo lỗi.</li>
+        <li>Không có dữ liệu: hiển thị “Không có dữ liệu”, tệp CSV chỉ có dòng tiêu đề.</li>
+      </ul></div>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC12">
+    <div class="head"><span class="code">UC12</span><span class="name">Cấu hình hệ thống</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>ADMIN</dd></div>
+        <div><dt>Mô tả</dt><dd>Chỉnh biểu giá bậc thang và các tham số vận hành</dd></div>
+      </dl>
+      <h4>Biểu giá bậc thang</h4>
+      <p>Tại <code>/admin/settings</code>, danh sách bậc gồm <i>từ kWh</i>, <i>đến kWh</i> — bậc cuối để trống nghĩa là không giới hạn — và <i>đơn giá đ/kWh</i>. Quy tắc lưu: bậc đầu bắt đầu từ 0; các bậc liền kề, không chồng lấn, không hở; đơn giá lớn hơn 0; chỉ bậc cuối được để trống cột “đến”. Dữ liệu sai thì không lưu và báo lỗi.</p>
+      <h4>Tham số</h4>
+      <div class="scroll"><table>
+        <thead><tr><th>Tham số</th><th>Mặc định</th><th>Ràng buộc</th></tr></thead>
+        <tbody>
+          <tr><td>Thuế VAT (%)</td><td class="num-col">8</td><td>0 – 100, tối đa 2 chữ số thập phân</td></tr>
+          <tr><td>Hạn thanh toán (ngày kể từ ngày lập)</td><td class="num-col">15</td><td>Số nguyên 1 – 60</td></tr>
+          <tr><td>Nhắc trước hạn (ngày)</td><td class="num-col">3</td><td>Số nguyên 0 – 30</td></tr>
+          <tr><td>Bật gửi email</td><td>Bật</td><td>Bật hoặc tắt</td></tr>
+          <tr><td>Địa chỉ gửi (From)</td><td><code>no-reply@electricbilling.local</code></td><td>Email hợp lệ</td></tr>
+          <tr><td>Tên đơn vị điện lực</td><td>Điện lực Phenikaa</td><td>≤ 100 ký tự</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">Thay đổi chỉ áp dụng cho hóa đơn lập sau đó. Máy chủ SMTP và tài khoản gửi mail đặt trong tệp cấu hình ứng dụng, không lưu trong cơ sở dữ liệu.</p>
+    </div>
+  </article>
+
+  <article class="ucard" id="UC13">
+    <div class="head"><span class="code">UC13</span><span class="name">Cập nhật hồ sơ cá nhân và đổi mật khẩu</span></div>
+    <div class="body">
+      <dl class="meta">
+        <div><dt>Tác nhân</dt><dd>CUSTOMER</dd></div>
+        <div><dt>Mô tả</dt><dd>Xem hồ sơ; sửa họ tên, địa chỉ, số điện thoại, email; đổi mật khẩu</dd></div>
+      </dl>
+      <h4>Đổi mật khẩu</h4>
+      <p>Nhập mật khẩu hiện tại, mật khẩu mới và xác nhận. Sai mật khẩu hiện tại, mật khẩu mới không đạt quy tắc, hoặc xác nhận không khớp thì báo lỗi. Quy tắc dữ liệu giống UC01.</p>
+      <p class="note">Số công tơ và mã hộ không được tự sửa.</p>
+    </div>
+  </article>
+</section>
+
+<footer>
+  Trích từ <code>docs/SRS.md</code> mục 2.3 — Hệ thống tính tiền điện cho hộ cá nhân, phiên bản 1.0.0.
+  Bản UML để xuất ảnh đưa vào báo cáo: <code>docs/usecase.puml</code>.
+</footer>
+
+</div>

@@ -172,6 +172,112 @@ Hệ thống giúp đơn vị điện lực quản lý việc tính và thu ti�
 
 ### 2.3 Đặc tả use-case
 
+**Bảng tóm tắt use-case**
+
+| Mã | Tên use-case | Tác nhân chính | Tác nhân phụ | Kích hoạt bởi | Chức năng |
+|---|---|---|---|---|---|
+| UC01 | Đăng ký tài khoản và hộ dùng điện | Guest | – | Người dùng mở `/register` | FR01 |
+| UC02 | Đăng nhập / Đăng xuất | Guest, CUSTOMER, ADMIN | – | Người dùng mở `/login` | FR02 |
+| UC03 | Ước tính tiền điện | Guest, CUSTOMER, ADMIN | – | Người dùng mở `/estimate` | FR03 |
+| UC04 | Cập nhật chỉ số điện | ADMIN | – | Cuối mỗi kỳ ghi chỉ số | FR04, FR05 |
+| UC05 | Tính tiền điện và lập hóa đơn | Hệ thống | – | UC04 (tự động) | FR06 |
+| UC06 | Xem hóa đơn | CUSTOMER | ADMIN (xem chi tiết mọi hộ) | Người dùng mở danh sách hóa đơn | FR07 |
+| UC07 | Đóng tiền hóa đơn | CUSTOMER (trực tuyến), ADMIN (tại quầy) | – | Hộ thanh toán / ADMIN thu tiền mặt | FR08, FR09 |
+| UC08 | Quản lý hộ dùng điện | ADMIN | – | ADMIN tra cứu, sửa, khóa/mở hộ | FR15 |
+| UC09 | Theo dõi danh sách | ADMIN | – | ADMIN mở bảng điều khiển / danh sách | FR16, FR17 |
+| UC10 | Gửi thông báo email | Hệ thống, ADMIN | Máy chủ email (SMTP) | UC05, UC07, Bộ lập lịch 08:00, ADMIN gửi thủ công | FR11–FR14 |
+| UC11 | Xuất báo cáo | ADMIN | – | ADMIN mở trang báo cáo | FR18 |
+| UC12 | Cấu hình hệ thống | ADMIN | – | ADMIN mở trang cấu hình | FR19, FR20 |
+| UC13 | Cập nhật hồ sơ cá nhân và đổi mật khẩu | CUSTOMER | – | Hộ mở trang hồ sơ | FR10 |
+
+**Quan hệ giữa các use-case**
+
+| Quan hệ | Nội dung | Diễn giải |
+|---|---|---|
+| «include» | UC04 → UC05 | Mỗi lần ghi chỉ số hợp lệ luôn kéo theo việc tính tiền và lập hóa đơn |
+| «include» | UC05 → UC10 | Lập hóa đơn xong luôn gửi email NEW_BILL |
+| «include» | UC07 → UC10 | Thanh toán thành công luôn gửi email PAYMENT_CONFIRMATION |
+| «include» | UC06, UC07, UC13 → UC02 | Các chức năng này yêu cầu đã đăng nhập |
+| «include» | UC04, UC08, UC09, UC11, UC12 → UC02 | Chỉ ADMIN đã đăng nhập mới dùng được |
+| «extend» | UC08 → UC06 | Từ chi tiết hộ, ADMIN có thể xem thêm hóa đơn của hộ đó |
+| «extend» | UC09 → UC11 | Từ danh sách, ADMIN có thể xuất thẳng dữ liệu ra CSV |
+| Tổng quát hóa | CUSTOMER, ADMIN kế thừa Guest | Người đã đăng nhập vẫn dùng được UC03 (ước tính tiền điện) |
+
+> Ghi chú: để biểu đồ dễ đọc, quan hệ «include» tới UC02 (đăng nhập) chỉ ghi trong bảng, không vẽ trên hình; điều kiện đăng nhập đã nêu ở phần tiền điều kiện của từng use-case.
+
+**Biểu đồ use-case – nhóm chức năng 1.1 (đăng ký, chỉ số, tính tiền, đóng tiền)**
+
+```mermaid
+flowchart LR
+    GUEST["Guest<br/>(chưa đăng nhập)"]
+    CUS["CUSTOMER<br/>(hộ dùng điện)"]
+    ADM["ADMIN<br/>(quản trị viên)"]
+
+    subgraph S1["Hệ thống tính tiền điện"]
+        direction TB
+        UC01(["UC01 · Đăng ký tài khoản<br/>và hộ dùng điện"])
+        UC02(["UC02 · Đăng nhập / Đăng xuất"])
+        UC03(["UC03 · Ước tính tiền điện"])
+        UC04(["UC04 · Cập nhật chỉ số điện"])
+        UC05(["UC05 · Tính tiền điện<br/>và lập hóa đơn"])
+        UC06(["UC06 · Xem hóa đơn"])
+        UC07(["UC07 · Đóng tiền hóa đơn"])
+        UC13(["UC13 · Cập nhật hồ sơ,<br/>đổi mật khẩu"])
+        UC10(["UC10 · Gửi thông báo email"])
+
+        UC04 -. include .-> UC05
+        UC05 -. include .-> UC10
+        UC07 -. include .-> UC10
+    end
+
+    MAIL["Máy chủ email<br/>(SMTP)"]
+
+    GUEST --- UC01
+    GUEST --- UC02
+    GUEST --- UC03
+    CUS --- UC03
+    CUS --- UC06
+    CUS --- UC07
+    CUS --- UC13
+    ADM --- UC04
+    ADM --- UC06
+    ADM --- UC07
+    CUS -. kế thừa .-> GUEST
+    ADM -. kế thừa .-> GUEST
+    UC10 --- MAIL
+```
+
+**Biểu đồ use-case – nhóm chức năng 1.2 (thông báo, theo dõi, báo cáo, cấu hình)**
+
+```mermaid
+flowchart LR
+    ADM["ADMIN<br/>(quản trị viên)"]
+    SCH["Bộ lập lịch<br/>(hằng ngày 08:00)"]
+
+    subgraph S2["Hệ thống tính tiền điện"]
+        direction TB
+        UC08(["UC08 · Quản lý hộ dùng điện"])
+        UC09(["UC09 · Theo dõi danh sách<br/>chỉ số, hóa đơn, thanh toán"])
+        UC11(["UC11 · Xuất báo cáo"])
+        UC12(["UC12 · Cấu hình hệ thống"])
+        UC10(["UC10 · Gửi thông báo email<br/>và ghi nhật ký"])
+
+        UC09 -. extend .-> UC11
+    end
+
+    MAIL["Máy chủ email<br/>(SMTP)"]
+
+    ADM --- UC08
+    ADM --- UC09
+    ADM --- UC11
+    ADM --- UC12
+    ADM --- UC10
+    SCH --- UC10
+    UC10 --- MAIL
+```
+
+Bản UML đầy đủ (ký hiệu chuẩn hình elip – người que) đặt tại `docs/usecase.puml`, mở bằng PlantUML để xuất ảnh PNG/SVG đưa vào báo cáo.
+
 #### 2.3.1 UC01 – Đăng ký tài khoản và hộ dùng điện
 
 | Mục | Nội dung |

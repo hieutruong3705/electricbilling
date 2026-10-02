@@ -1,0 +1,73 @@
+@startuml usecase-electric-billing
+' Biểu đồ use-case - Hệ thống tính tiền điện cho hộ cá nhân
+' Xuất ảnh: java -jar plantuml.jar docs/usecase.puml  (hoặc dùng plantuml.com/plantuml)
+
+skinparam shadowing false
+skinparam defaultFontName "Segoe UI"
+skinparam actorStyle awesome
+left to right direction
+
+actor "Guest\n(chưa đăng nhập)" as Guest
+actor "CUSTOMER\n(hộ dùng điện)" as Customer
+actor "ADMIN\n(quản trị viên)" as Admin
+actor "Bộ lập lịch\n(hằng ngày 08:00)" as Scheduler
+actor "Máy chủ email\n(SMTP)" as Mail
+
+Customer --|> Guest
+Admin --|> Guest
+
+rectangle "Hệ thống tính tiền điện cho hộ cá nhân" {
+
+  package "Nhóm chức năng 1.1" {
+    usecase "UC01 Đăng ký tài khoản\nvà hộ dùng điện" as UC01
+    usecase "UC02 Đăng nhập / Đăng xuất" as UC02
+    usecase "UC03 Ước tính tiền điện" as UC03
+    usecase "UC04 Cập nhật chỉ số điện" as UC04
+    usecase "UC05 Tính tiền điện\nvà lập hóa đơn" as UC05
+    usecase "UC06 Xem hóa đơn" as UC06
+    usecase "UC07 Đóng tiền hóa đơn" as UC07
+    usecase "UC13 Cập nhật hồ sơ,\nđổi mật khẩu" as UC13
+  }
+
+  package "Nhóm chức năng 1.2" {
+    usecase "UC08 Quản lý hộ dùng điện" as UC08
+    usecase "UC09 Theo dõi danh sách" as UC09
+    usecase "UC10 Gửi thông báo email\nvà ghi nhật ký" as UC10
+    usecase "UC11 Xuất báo cáo" as UC11
+    usecase "UC12 Cấu hình hệ thống" as UC12
+  }
+}
+
+Guest --> UC01
+Guest --> UC02
+Guest --> UC03
+
+Customer --> UC06
+Customer --> UC07
+Customer --> UC13
+
+Admin --> UC04
+Admin --> UC06
+Admin --> UC07
+Admin --> UC08
+Admin --> UC09
+Admin --> UC10
+Admin --> UC11
+Admin --> UC12
+
+Scheduler --> UC10
+UC10 --> Mail
+
+UC04 ..> UC05 : <<include>>
+UC05 ..> UC10 : <<include>>
+UC07 ..> UC10 : <<include>>
+UC08 ..> UC06 : <<extend>>
+UC09 ..> UC11 : <<extend>>
+
+note bottom of UC02
+  Mọi use-case trừ UC01, UC02, UC03
+  đều yêu cầu đã đăng nhập (<<include>> UC02),
+  không vẽ để hình dễ đọc.
+end note
+
+@enduml

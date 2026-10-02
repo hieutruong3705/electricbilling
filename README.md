@@ -1,7 +1,7 @@
 # Electric Billing – Hệ thống tính tiền điện cho hộ cá nhân
 
 Bài tập lớn môn *Đánh giá và kiểm định chất lượng phần mềm* – đề tài 1 (nhóm chức năng 1.1 và 1.2).
-Đặc tả yêu cầu: [docs/SRS.md](docs/SRS.md).
+Đặc tả yêu cầu: [docs/SRS.md](docs/SRS.md). Đặc tả use-case một trang: [docs/usecase.html](docs/usecase.html) (biểu đồ UML: [docs/usecase.puml](docs/usecase.puml)).
 
 ## Công nghệ
 
@@ -47,6 +47,8 @@ Nếu chưa có máy chủ SMTP, email thất bại sẽ được ghi vào *Thô
 
 ```
 docs/SRS.md                         Đặc tả yêu cầu (YC 1)
+docs/usecase.html                   Đặc tả use-case một trang (biểu đồ + 13 use-case)
+docs/usecase.puml                   Biểu đồ use-case bản UML (PlantUML)
 src/main/java/.../domain            Thực thể JPA, enum
 src/main/java/.../repository        Spring Data JPA
 src/main/java/.../service           Nghiệp vụ; BillingCalculator = logic tính tiền thuần
