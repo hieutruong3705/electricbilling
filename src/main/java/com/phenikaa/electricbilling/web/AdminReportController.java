@@ -1,10 +1,12 @@
 package com.phenikaa.electricbilling.web;
 
+import java.net.URI;
 import java.time.Clock;
 import java.time.YearMonth;
 
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -67,7 +69,13 @@ public class AdminReportController {
 		YearMonth now = YearMonth.now(clock);
 		YearMonth fromMonth = orDefault(WebUtils.parseMonth(from), YearMonth.of(now.getYear(), 1));
 		YearMonth toMonth = orDefault(WebUtils.parseMonth(to), now);
-		return csv("bao-cao-doanh-thu.csv", reportService.revenueCsv(reportService.revenue(fromMonth, toMonth)));
+		try {
+			return csv("bao-cao-doanh-thu.csv", reportService.revenueCsv(reportService.revenue(fromMonth, toMonth)));
+		} catch (BusinessException ex) {
+			// Khoảng kỳ không hợp lệ: quay về trang báo cáo, nơi hiển thị thông báo lỗi
+			return ResponseEntity.status(HttpStatus.FOUND)
+					.location(URI.create("/admin/reports?type=revenue&from=" + fromMonth + "&to=" + toMonth)).build();
+		}
 	}
 
 	@GetMapping("/debts.csv")

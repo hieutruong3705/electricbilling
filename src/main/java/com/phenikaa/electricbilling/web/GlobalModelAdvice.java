@@ -2,11 +2,15 @@ package com.phenikaa.electricbilling.web;
 
 import java.time.Clock;
 import java.time.LocalDate;
+import java.util.List;
 
+import org.springframework.beans.propertyeditors.StringTrimmerEditor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import lombok.RequiredArgsConstructor;
@@ -16,7 +20,19 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class GlobalModelAdvice {
 
+	/** Các ô văn bản được cắt khoảng trắng hai đầu trước khi kiểm tra; mật khẩu giữ nguyên. */
+	private static final List<String> TRIMMED_FIELDS = List.of("username", "fullName", "address", "phone", "email",
+			"meterNumber", "mailFrom", "companyName");
+
 	private final Clock clock;
+
+	@InitBinder
+	public void trimTextFields(WebDataBinder binder) {
+		StringTrimmerEditor trimmer = new StringTrimmerEditor(false);
+		for (String field : TRIMMED_FIELDS) {
+			binder.registerCustomEditor(String.class, field, trimmer);
+		}
+	}
 
 	/** ADMIN, CUSTOMER hoặc null nếu chưa đăng nhập. */
 	@ModelAttribute("currentRole")

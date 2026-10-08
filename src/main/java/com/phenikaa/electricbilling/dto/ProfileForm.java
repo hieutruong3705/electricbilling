@@ -15,7 +15,7 @@ import lombok.Setter;
 public class ProfileForm {
 
 	@NotBlank(message = "Vui lòng nhập họ tên")
-	@Size(min = 2, max = 100, message = "Họ tên từ 2 đến 100 ký tự")
+	@Pattern(regexp = "^$|^.{2,100}$", message = "Họ tên từ 2 đến 100 ký tự")
 	private String fullName;
 
 	@NotBlank(message = "Vui lòng nhập địa chỉ")

@@ -17,6 +17,9 @@
 					Bậc đầu bắt đầu từ 0; "Từ kWh" của mỗi bậc bằng "Đến kWh" của bậc trước; bậc cuối để trống "Đến kWh"
 					(không giới hạn). Xóa một bậc bằng cách xóa trống cả dòng; dòng trống ở cuối dùng để thêm bậc mới.
 				</p>
+				<div class="alert alert-danger" id="tiers-error" th:if="${#fields.hasErrors('tiers*')}">
+					Biểu giá có ô nhập không phải là số hợp lệ. Vui lòng kiểm tra các ô được đánh dấu.
+				</div>
 				<div class="table-responsive">
 					<table class="table table-sm align-middle" id="tier-table">
 						<thead>
@@ -25,9 +28,12 @@
 						<tbody>
 						<tr th:each="t, st : *{tiers}">
 							<td th:text="${st.index + 1}">1</td>
-							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].fromKwh}"></td>
-							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].toKwh}"></td>
-							<td><input class="form-control form-control-sm" type="number" min="0" step="any" th:field="*{tiers[__${st.index}__].unitPrice}"></td>
+							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].fromKwh}"
+							           th:classappend="${#fields.hasErrors('tiers[__${st.index}__].fromKwh')} ? 'is-invalid'"></td>
+							<td><input class="form-control form-control-sm" type="number" min="0" th:field="*{tiers[__${st.index}__].toKwh}"
+							           th:classappend="${#fields.hasErrors('tiers[__${st.index}__].toKwh')} ? 'is-invalid'"></td>
+							<td><input class="form-control form-control-sm" type="number" min="0" step="any" th:field="*{tiers[__${st.index}__].unitPrice}"
+							           th:classappend="${#fields.hasErrors('tiers[__${st.index}__].unitPrice')} ? 'is-invalid'"></td>
 						</tr>
 						</tbody>
 					</table>

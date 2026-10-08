@@ -123,13 +123,14 @@ public class AdminBillingController {
 	}
 
 	@PostMapping("/bills/{id}/reading")
-	public String editReading(@PathVariable Long id, @RequestParam(required = false) Integer currentReading,
+	public String editReading(@PathVariable Long id, @RequestParam(required = false) String currentReading,
 			Principal principal, RedirectAttributes redirect) {
-		if (currentReading == null || currentReading < 0 || currentReading > 99_999_999) {
+		// Nhận dạng chuỗi để giá trị không phải số cũng nhận thông báo lỗi thay vì trang lỗi 400
+		if (currentReading == null || !currentReading.trim().matches("[0-9]{1,8}")) {
 			redirect.addFlashAttribute("error", "Chỉ số mới phải là số nguyên từ 0 đến 99.999.999");
 		} else {
 			try {
-				readingService.updateLatest(id, currentReading, principal.getName());
+				readingService.updateLatest(id, Integer.parseInt(currentReading.trim()), principal.getName());
 				redirect.addFlashAttribute("success", "Đã sửa chỉ số và tính lại hóa đơn");
 			} catch (BusinessException ex) {
 				redirect.addFlashAttribute("error", ex.getMessage());
