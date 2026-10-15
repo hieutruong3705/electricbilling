@@ -26,7 +26,6 @@ import com.phenikaa.electricbilling.repository.NotificationLogRepository;
 import com.phenikaa.electricbilling.repository.PaymentRepository;
 import com.phenikaa.electricbilling.web.Fmt;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -35,7 +34,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
 
 	private final NotificationLogRepository logRepository;
@@ -45,6 +43,18 @@ public class NotificationService {
 	private final SettingsService settings;
 	private final Fmt fmt;
 	private final Clock clock;
+
+	public NotificationService(NotificationLogRepository logRepository, BillRepository billRepository,
+			PaymentRepository paymentRepository, MailService mailService, SettingsService settings, Fmt fmt,
+			Clock clock) {
+		this.logRepository = logRepository;
+		this.billRepository = billRepository;
+		this.paymentRepository = paymentRepository;
+		this.mailService = mailService;
+		this.settings = settings;
+		this.fmt = fmt;
+		this.clock = clock;
+	}
 
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
 	@Transactional(propagation = Propagation.REQUIRES_NEW)

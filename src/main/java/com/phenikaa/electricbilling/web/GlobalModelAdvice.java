@@ -13,11 +13,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import lombok.RequiredArgsConstructor;
-
 /** Thuộc tính dùng chung cho mọi trang: người dùng hiện tại (cho thanh điều hướng) và ngày hiện tại. */
 @ControllerAdvice
-@RequiredArgsConstructor
 public class GlobalModelAdvice {
 
 	/** Các ô văn bản được cắt khoảng trắng hai đầu trước khi kiểm tra; mật khẩu giữ nguyên. */
@@ -25,6 +22,10 @@ public class GlobalModelAdvice {
 			"meterNumber", "mailFrom", "companyName");
 
 	private final Clock clock;
+
+	public GlobalModelAdvice(Clock clock) {
+		this.clock = clock;
+	}
 
 	@InitBinder
 	public void trimTextFields(WebDataBinder binder) {

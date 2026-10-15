@@ -21,18 +21,24 @@ import com.phenikaa.electricbilling.service.CustomerService;
 import com.phenikaa.electricbilling.service.ReportService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /** ADMIN: bảng điều khiển và quản lý hộ dùng điện (UC08, UC09). */
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
 public class AdminCustomerController {
 
 	private final CustomerService customerService;
 	private final BillService billService;
 	private final ReportService reportService;
 	private final MeterReadingRepository readingRepository;
+
+	public AdminCustomerController(CustomerService customerService, BillService billService,
+			ReportService reportService, MeterReadingRepository readingRepository) {
+		this.customerService = customerService;
+		this.billService = billService;
+		this.reportService = reportService;
+		this.readingRepository = readingRepository;
+	}
 
 	@GetMapping
 	public String dashboard(Model model) {

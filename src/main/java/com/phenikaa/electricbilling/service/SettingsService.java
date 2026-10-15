@@ -16,11 +16,8 @@ import com.phenikaa.electricbilling.exception.BusinessException;
 import com.phenikaa.electricbilling.repository.SystemConfigRepository;
 import com.phenikaa.electricbilling.repository.TariffTierRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Cấu hình hệ thống: biểu giá bậc thang và các tham số vận hành (UC12). */
 @Service
-@RequiredArgsConstructor
 public class SettingsService {
 
 	public static final String VAT_RATE = "vat_rate";
@@ -35,6 +32,11 @@ public class SettingsService {
 
 	private final SystemConfigRepository configRepository;
 	private final TariffTierRepository tierRepository;
+
+	public SettingsService(SystemConfigRepository configRepository, TariffTierRepository tierRepository) {
+		this.configRepository = configRepository;
+		this.tierRepository = tierRepository;
+	}
 
 	@Transactional(readOnly = true)
 	public BigDecimal vatRate() {

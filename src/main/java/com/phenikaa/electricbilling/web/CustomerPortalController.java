@@ -26,17 +26,22 @@ import com.phenikaa.electricbilling.service.CustomerService;
 import com.phenikaa.electricbilling.service.PaymentService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /** Cổng khách hàng: xem/đóng hóa đơn (UC06, UC07) và hồ sơ cá nhân (UC13). Chỉ truy cập dữ liệu của chính mình. */
 @Controller
 @RequestMapping("/customer")
-@RequiredArgsConstructor
 public class CustomerPortalController {
 
 	private final CustomerService customerService;
 	private final BillService billService;
 	private final PaymentService paymentService;
+
+	public CustomerPortalController(CustomerService customerService, BillService billService,
+			PaymentService paymentService) {
+		this.customerService = customerService;
+		this.billService = billService;
+		this.paymentService = paymentService;
+	}
 
 	@GetMapping("/bills")
 	public String bills(Principal principal, @RequestParam(required = false) String state,

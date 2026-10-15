@@ -26,11 +26,8 @@ import com.phenikaa.electricbilling.repository.AppUserRepository;
 import com.phenikaa.electricbilling.repository.CustomerRepository;
 import com.phenikaa.electricbilling.repository.MeterReadingRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Đăng ký, hồ sơ cá nhân, quản lý hộ dùng điện (UC01, UC08, UC13). */
 @Service
-@RequiredArgsConstructor
 public class CustomerService {
 
 	private final AppUserRepository userRepository;
@@ -38,6 +35,15 @@ public class CustomerService {
 	private final MeterReadingRepository readingRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final Clock clock;
+
+	public CustomerService(AppUserRepository userRepository, CustomerRepository customerRepository,
+			MeterReadingRepository readingRepository, PasswordEncoder passwordEncoder, Clock clock) {
+		this.userRepository = userRepository;
+		this.customerRepository = customerRepository;
+		this.readingRepository = readingRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.clock = clock;
+	}
 
 	/** UC01: tạo tài khoản CUSTOMER và hồ sơ hộ dùng điện. */
 	@Transactional

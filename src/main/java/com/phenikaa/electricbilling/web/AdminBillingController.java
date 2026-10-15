@@ -25,18 +25,24 @@ import com.phenikaa.electricbilling.service.MeterReadingService.ReadingContext;
 import com.phenikaa.electricbilling.service.PaymentService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /** ADMIN: ghi chỉ số, hóa đơn, thu tiền (UC04, UC05, UC07, UC09). */
 @Controller
 @RequestMapping("/admin")
-@RequiredArgsConstructor
 public class AdminBillingController {
 
 	private final MeterReadingService readingService;
 	private final CustomerService customerService;
 	private final BillService billService;
 	private final PaymentService paymentService;
+
+	public AdminBillingController(MeterReadingService readingService, CustomerService customerService,
+			BillService billService, PaymentService paymentService) {
+		this.readingService = readingService;
+		this.customerService = customerService;
+		this.billService = billService;
+		this.paymentService = paymentService;
+	}
 
 	// ---- Chỉ số điện ----
 

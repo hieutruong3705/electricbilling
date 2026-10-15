@@ -19,11 +19,9 @@ import com.phenikaa.electricbilling.service.CustomerService;
 import com.phenikaa.electricbilling.service.SettingsService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /** Trang công khai: đăng nhập (UC02), đăng ký (UC01), ước tính tiền điện (UC03). */
 @Controller
-@RequiredArgsConstructor
 public class PublicController {
 
 	private static final Pattern KWH = Pattern.compile("^\\d{1,5}$");
@@ -31,6 +29,12 @@ public class PublicController {
 	private final CustomerService customerService;
 	private final BillingCalculator calculator;
 	private final SettingsService settings;
+
+	public PublicController(CustomerService customerService, BillingCalculator calculator, SettingsService settings) {
+		this.customerService = customerService;
+		this.calculator = calculator;
+		this.settings = settings;
+	}
 
 	@GetMapping("/")
 	public String home(Authentication auth) {

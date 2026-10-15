@@ -11,18 +11,23 @@ import com.phenikaa.electricbilling.domain.Role;
 import com.phenikaa.electricbilling.repository.AppUserRepository;
 import com.phenikaa.electricbilling.service.SettingsService;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 /** Khi khởi động: tạo biểu giá/tham số mặc định và tài khoản ADMIN đầu tiên nếu chưa có. */
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class DataInitializer implements ApplicationRunner {
 
 	private final AppUserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final SettingsService settingsService;
+
+	public DataInitializer(AppUserRepository userRepository, PasswordEncoder passwordEncoder,
+			SettingsService settingsService) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.settingsService = settingsService;
+	}
 
 	@Value("${app.admin.username}")
 	private String adminUsername;

@@ -15,15 +15,16 @@ import com.phenikaa.electricbilling.domain.NotificationType;
 import com.phenikaa.electricbilling.exception.BusinessException;
 import com.phenikaa.electricbilling.service.NotificationService;
 
-import lombok.RequiredArgsConstructor;
-
 /** ADMIN: nhật ký thông báo email, gửi nhắc nợ hàng loạt, gửi lại (UC10). */
 @Controller
 @RequestMapping("/admin/notifications")
-@RequiredArgsConstructor
 public class AdminNotificationController {
 
 	private final NotificationService notificationService;
+
+	public AdminNotificationController(NotificationService notificationService) {
+		this.notificationService = notificationService;
+	}
 
 	@GetMapping
 	public String list(@RequestParam(required = false) String type, @RequestParam(required = false) String status,

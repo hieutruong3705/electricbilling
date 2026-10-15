@@ -18,17 +18,22 @@ import com.phenikaa.electricbilling.exception.NotFoundException;
 import com.phenikaa.electricbilling.repository.BillRepository;
 import com.phenikaa.electricbilling.repository.PaymentRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Đóng tiền hóa đơn: trực tuyến (mô phỏng) hoặc tiền mặt tại quầy (UC07). */
 @Service
-@RequiredArgsConstructor
 public class PaymentService {
 
 	private final BillRepository billRepository;
 	private final PaymentRepository paymentRepository;
 	private final ApplicationEventPublisher events;
 	private final Clock clock;
+
+	public PaymentService(BillRepository billRepository, PaymentRepository paymentRepository,
+			ApplicationEventPublisher events, Clock clock) {
+		this.billRepository = billRepository;
+		this.paymentRepository = paymentRepository;
+		this.events = events;
+		this.clock = clock;
+	}
 
 	/** Khách hàng thanh toán trực tuyến hóa đơn của chính mình (chuyển khoản / ví điện tử). */
 	@Transactional

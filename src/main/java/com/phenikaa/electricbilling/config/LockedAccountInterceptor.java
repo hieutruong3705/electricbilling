@@ -12,14 +12,16 @@ import com.phenikaa.electricbilling.repository.AppUserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import lombok.RequiredArgsConstructor;
 
 /** Hộ bị khóa khi đang đăng nhập: hủy phiên đang mở và đưa về trang đăng nhập (BR-15). */
 @Component
-@RequiredArgsConstructor
 public class LockedAccountInterceptor implements HandlerInterceptor {
 
 	private final AppUserRepository userRepository;
+
+	public LockedAccountInterceptor(AppUserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)

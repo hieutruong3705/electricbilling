@@ -9,14 +9,15 @@ import org.springframework.stereotype.Service;
 import com.phenikaa.electricbilling.domain.AppUser;
 import com.phenikaa.electricbilling.repository.AppUserRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Nạp tài khoản từ CSDL cho Spring Security; tài khoản bị khóa được đánh dấu disabled. */
 @Service
-@RequiredArgsConstructor
 public class AppUserDetailsService implements UserDetailsService {
 
 	private final AppUserRepository userRepository;
+
+	public AppUserDetailsService(AppUserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

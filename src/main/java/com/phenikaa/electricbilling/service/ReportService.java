@@ -24,11 +24,8 @@ import com.phenikaa.electricbilling.repository.CustomerRepository;
 import com.phenikaa.electricbilling.repository.PaymentRepository;
 import com.phenikaa.electricbilling.web.Fmt;
 
-import lombok.RequiredArgsConstructor;
-
 /** Bảng điều khiển và báo cáo (UC09, UC11). */
 @Service
-@RequiredArgsConstructor
 public class ReportService {
 
 	private final BillRepository billRepository;
@@ -36,6 +33,15 @@ public class ReportService {
 	private final PaymentRepository paymentRepository;
 	private final Fmt fmt;
 	private final Clock clock;
+
+	public ReportService(BillRepository billRepository, CustomerRepository customerRepository,
+			PaymentRepository paymentRepository, Fmt fmt, Clock clock) {
+		this.billRepository = billRepository;
+		this.customerRepository = customerRepository;
+		this.paymentRepository = paymentRepository;
+		this.fmt = fmt;
+		this.clock = clock;
+	}
 
 	public record Dashboard(long activeCustomers, long unpaidBills, long overdueBills, BigDecimal outstanding,
 			BigDecimal collectedThisMonth) {

@@ -18,18 +18,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.phenikaa.electricbilling.exception.BusinessException;
 import com.phenikaa.electricbilling.service.ReportService;
 
-import lombok.RequiredArgsConstructor;
-
 /** ADMIN: báo cáo doanh thu, danh sách nợ, tiêu thụ theo hộ; xuất CSV (UC11). */
 @Controller
 @RequestMapping("/admin/reports")
-@RequiredArgsConstructor
 public class AdminReportController {
 
 	private static final MediaType CSV = new MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8);
 
 	private final ReportService reportService;
 	private final Clock clock;
+
+	public AdminReportController(ReportService reportService, Clock clock) {
+		this.reportService = reportService;
+		this.clock = clock;
+	}
 
 	/** Trang báo cáo: {@code type} = revenue | debts | consumption. */
 	@GetMapping

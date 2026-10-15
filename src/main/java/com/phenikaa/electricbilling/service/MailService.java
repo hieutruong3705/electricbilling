@@ -5,14 +5,15 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
-
 /** Gửi email qua SMTP; ném ngoại lệ nếu không gửi được (người gọi ghi nhật ký). */
 @Service
-@RequiredArgsConstructor
 public class MailService {
 
 	private final ObjectProvider<JavaMailSender> senderProvider;
+
+	public MailService(ObjectProvider<JavaMailSender> senderProvider) {
+		this.senderProvider = senderProvider;
+	}
 
 	public void send(String from, String to, String subject, String body) {
 		JavaMailSender sender = senderProvider.getIfAvailable();

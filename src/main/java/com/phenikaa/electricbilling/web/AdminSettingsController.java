@@ -15,18 +15,20 @@ import com.phenikaa.electricbilling.exception.BusinessException;
 import com.phenikaa.electricbilling.service.SettingsService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 /** ADMIN: cấu hình biểu giá bậc thang và tham số vận hành (UC12). */
 @Controller
 @RequestMapping("/admin/settings")
-@RequiredArgsConstructor
 public class AdminSettingsController {
 
 	/** Số dòng trống thêm vào cuối để có thể thêm bậc mới. */
 	private static final int EXTRA_ROWS = 2;
 
 	private final SettingsService settingsService;
+
+	public AdminSettingsController(SettingsService settingsService) {
+		this.settingsService = settingsService;
+	}
 
 	@GetMapping
 	public String form(Model model) {

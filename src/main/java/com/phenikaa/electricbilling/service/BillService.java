@@ -17,11 +17,8 @@ import com.phenikaa.electricbilling.domain.MeterReading;
 import com.phenikaa.electricbilling.exception.NotFoundException;
 import com.phenikaa.electricbilling.repository.BillRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Lập hóa đơn, tính lại hóa đơn và tra cứu hóa đơn (UC05, UC06). */
 @Service
-@RequiredArgsConstructor
 public class BillService {
 
 	private final BillRepository billRepository;
@@ -29,6 +26,15 @@ public class BillService {
 	private final SettingsService settings;
 	private final ApplicationEventPublisher events;
 	private final Clock clock;
+
+	public BillService(BillRepository billRepository, BillingCalculator calculator, SettingsService settings,
+			ApplicationEventPublisher events, Clock clock) {
+		this.billRepository = billRepository;
+		this.calculator = calculator;
+		this.settings = settings;
+		this.events = events;
+		this.clock = clock;
+	}
 
 	/** UC05: tính tiền theo biểu giá/VAT hiện hành và lập hóa đơn cho kỳ của chỉ số. */
 	@Transactional

@@ -20,11 +20,8 @@ import com.phenikaa.electricbilling.repository.BillRepository;
 import com.phenikaa.electricbilling.repository.CustomerRepository;
 import com.phenikaa.electricbilling.repository.MeterReadingRepository;
 
-import lombok.RequiredArgsConstructor;
-
 /** Ghi chỉ số điện hằng kỳ và sửa chỉ số kỳ gần nhất (UC04). */
 @Service
-@RequiredArgsConstructor
 public class MeterReadingService {
 
 	private final CustomerRepository customerRepository;
@@ -32,6 +29,15 @@ public class MeterReadingService {
 	private final BillRepository billRepository;
 	private final BillService billService;
 	private final Clock clock;
+
+	public MeterReadingService(CustomerRepository customerRepository, MeterReadingRepository readingRepository,
+			BillRepository billRepository, BillService billService, Clock clock) {
+		this.customerRepository = customerRepository;
+		this.readingRepository = readingRepository;
+		this.billRepository = billRepository;
+		this.billService = billService;
+		this.clock = clock;
+	}
 
 	/** Thông tin gợi ý cho form ghi chỉ số của một hộ. */
 	public record ReadingContext(Customer customer, int previousReading, int suggestedYear, int suggestedMonth,
